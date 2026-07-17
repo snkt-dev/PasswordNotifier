@@ -1,0 +1,399 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Срок действия пароля истекает</title>
+<style>
+  :root {
+    --ms-blue: #0067b8;
+    --ms-blue-dark: #005a9e;
+    --ms-bg: #f3f2f1;
+    --ms-card: #ffffff;
+    --ms-text: #201f1e;
+    --ms-text-soft: #605e5c;
+    --ms-border: #edebe9;
+    --ms-warning: #ca5010;
+    --ms-warning-bg: #fdf6f3;
+    --ms-warning-border: #f4bfab;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    padding: 24px;
+    background: var(--ms-bg);
+    font-family: "Segoe UI", "Segoe UI Web (West European)", -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", sans-serif;
+    color: var(--ms-text);
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.5;
+  }
+
+  .card {
+    max-width: 640px;
+    margin: 0 auto;
+    background: var(--ms-card);
+    border: 1px solid var(--ms-border);
+    border-radius: 8px;
+    box-shadow: 0 6.4px 14.4px rgba(0,0,0,0.13), 0 1.2px 3.6px rgba(0,0,0,0.11);
+    overflow: hidden;
+  }
+
+  /* Верхняя цветная полоса — делает уведомление заметным */
+  .accent-bar {
+    height: 6px;
+    background: linear-gradient(90deg, var(--ms-warning) 0%, #eaa044 100%);
+  }
+
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 20px 28px 4px;
+  }
+
+  /* Логотип Windows из 4 квадратов */
+  .win-logo {
+    width: 28px;
+    height: 28px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 3px;
+    flex: none;
+  }
+  .win-logo span {
+    display: block;
+    background: var(--ms-blue);
+    border-radius: 1px;
+  }
+
+  .header-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ms-text-soft);
+    letter-spacing: .2px;
+  }
+
+  .body {
+    padding: 8px 28px 28px;
+  }
+
+  .shield {
+    width: 56px;
+    height: 56px;
+    margin: 8px 0 16px;
+    color: var(--ms-warning);
+  }
+
+  h1 {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0 0 8px;
+    line-height: 1.25;
+  }
+
+  .greeting {
+    font-size: 15px;
+    color: var(--ms-text);
+    margin: 0 0 20px;
+  }
+
+  /* Блок с датой — самый заметный элемент */
+  .expiry-callout {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: var(--ms-warning-bg);
+    border: 1px solid var(--ms-warning-border);
+    border-left: 4px solid var(--ms-warning);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 0 0 24px;
+  }
+  .expiry-callout .label {
+    font-size: 13px;
+    color: var(--ms-text-soft);
+    text-transform: uppercase;
+    letter-spacing: .6px;
+    margin: 0 0 2px;
+  }
+  .expiry-callout .date {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--ms-warning);
+    margin: 0;
+  }
+  .expiry-callout .clock {
+    width: 32px;
+    height: 32px;
+    color: var(--ms-warning);
+    flex: none;
+  }
+
+  /* Плашка «осталось N дней» — цвет зависит от срочности */
+  .days-pill {
+    display: inline-block;
+    margin-top: 8px;
+    padding: 3px 12px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.6;
+    background: #fbe4d5;
+    color: #8a3707;
+  }
+  .days-pill.urgent {
+    background: #fde7e9;
+    color: #a4262c;
+  }
+  .days-pill.expired {
+    background: #605e5c;
+    color: #ffffff;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .days-pill { background: #5a3a25; color: #f6c9ab; }
+    .days-pill.urgent { background: #5a2327; color: #f4b9bd; }
+    .days-pill.expired { background: #797775; color: #ffffff; }
+  }
+
+  .meta {
+    font-size: 14px;
+    color: var(--ms-text-soft);
+    margin: 0 0 24px;
+  }
+  .meta b { color: var(--ms-text); font-weight: 600; }
+
+  h2 {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0 0 14px;
+  }
+
+  ol.steps {
+    margin: 0 0 8px;
+    padding: 0;
+    list-style: none;
+    counter-reset: step;
+  }
+  ol.steps li {
+    position: relative;
+    padding: 0 0 16px 44px;
+    counter-increment: step;
+    font-size: 15px;
+  }
+  ol.steps li:last-child { padding-bottom: 0; }
+  ol.steps li::before {
+    content: counter(step);
+    position: absolute;
+    left: 0;
+    top: -2px;
+    width: 28px;
+    height: 28px;
+    background: var(--ms-blue);
+    color: #fff;
+    border-radius: 50%;
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Клавиши в стиле keyboard shortcut */
+  .keys {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    vertical-align: middle;
+    white-space: nowrap;
+  }
+  kbd {
+    display: inline-block;
+    background: #faf9f8;
+    border: 1px solid #c8c6c4;
+    border-bottom-width: 2px;
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-family: "Segoe UI", sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ms-text);
+    box-shadow: 0 1px 0 rgba(0,0,0,0.04);
+  }
+  .keys .plus { color: var(--ms-text-soft); font-weight: 600; }
+
+  .tip {
+    display: flex;
+    gap: 10px;
+    background: #f3f9fd;
+    border: 1px solid #cfe4f6;
+    border-radius: 6px;
+    padding: 14px 16px;
+    margin: 20px 0 0;
+    font-size: 13.5px;
+    color: var(--ms-text-soft);
+  }
+  .tip svg { width: 18px; height: 18px; flex: none; color: var(--ms-blue); margin-top: 1px; }
+
+  .footer {
+    border-top: 1px solid var(--ms-border);
+    padding: 18px 28px;
+    font-size: 12px;
+    color: var(--ms-text-soft);
+  }
+  .footer p { margin: 0 0 4px; }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ms-bg: #1b1a19;
+      --ms-card: #252423;
+      --ms-text: #f3f2f1;
+      --ms-text-soft: #c8c6c4;
+      --ms-border: #3b3a39;
+      --ms-warning-bg: #3a2a20;
+      --ms-warning-border: #7a4a2c;
+    }
+    kbd { background: #323130; border-color: #605e5c; }
+    .tip { background: #1f2b33; border-color: #34506180; }
+  }
+</style>
+
+<div class="card">
+  <div class="accent-bar"></div>
+
+  <div class="header">
+    <div class="win-logo" aria-hidden="true">
+      <span></span><span></span><span></span><span></span>
+    </div>
+    <div class="header-title">Безопасность Windows</div>
+  </div>
+
+  <div class="body">
+    <svg class="shield" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M12 2L4 5v6c0 5 3.4 8.9 8 11 4.6-2.1 8-6 8-11V5l-8-3z" fill="currentColor" opacity="0.14"/>
+      <path d="M12 2L4 5v6c0 5 3.4 8.9 8 11 4.6-2.1 8-6 8-11V5l-8-3z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+      <path d="M12 8v4m0 3h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+    </svg>
+
+    <h1>Срок действия пароля скоро истекает</h1>
+    <p class="greeting">Здравствуйте, <b>{{Name}}</b>!</p>
+
+    <div class="expiry-callout">
+      <svg class="clock" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/>
+        <path d="M12 7v5l3.5 2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <div>
+        <p class="label">Пароль действителен до</p>
+        <p class="date">{{PasswordExpiryDate}}</p>
+        <span class="days-pill" id="daysPill" hidden></span>
+      </div>
+    </div>
+
+    <p class="meta">
+      Учётная запись: <b>{{Name}}</b> &nbsp;•&nbsp; Домен: <b>{{Domain}}</b>
+    </p>
+
+    <p class="greeting">
+      Чтобы не потерять доступ к рабочим приложениям, почте и общим ресурсам,
+      смените пароль <b>до указанной даты</b>. Сделать это можно прямо на рабочем
+      компьютере за несколько шагов.
+    </p>
+
+    <h2>Как сменить пароль</h2>
+    <ol class="steps">
+      <li>
+        Нажмите сочетание клавиш
+        <span class="keys">
+          <kbd>Ctrl</kbd><span class="plus">+</span><kbd>Alt</kbd><span class="plus">+</span><kbd>Delete</kbd>
+        </span>
+      </li>
+      <li>На появившемся синем экране выберите пункт <b>«Сменить пароль»</b>.</li>
+      <li>Введите <b>текущий пароль</b>, затем дважды — <b>новый пароль</b>.</li>
+      <li>Нажмите <b>Enter</b> (стрелку) и дождитесь подтверждения об успешной смене.</li>
+    </ol>
+
+    <div class="tip">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/>
+        <path d="M12 11v5m0-8h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>
+      <div>
+        Новый пароль должен соответствовать политике безопасности домена
+        <b>{{Domain}}</b>: не менее 8 символов, с заглавными и строчными буквами,
+        цифрами и специальными символами. Не используйте прежние пароли.
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>Это автоматическое уведомление службы безопасности домена <b>{{Domain}}</b>.</p>
+    <p>Отвечать на него не нужно. По вопросам обращайтесь в службу технической поддержки.</p>
+  </div>
+</div>
+
+<script>
+(function () {
+  var RU_MONTHS = {
+    'январ': 0, 'феврал': 1, 'март': 2, 'апрел': 3, 'ма': 4, 'июн': 5,
+    'июл': 6, 'август': 7, 'сентябр': 8, 'октябр': 9, 'ноябр': 10, 'декабр': 11
+  };
+
+  // Разбирает дату из разных форматов: ISO, ДД.ММ.ГГГГ, ДД/ММ/ГГГГ, «ДД месяц ГГГГ».
+  function parseExpiry(raw) {
+    if (!raw) return null;
+    var s = raw.trim();
+    if (!s || s.indexOf('{{') !== -1) return null; // плейсхолдер ещё не подставлен
+
+    var m;
+    // 2026-07-24 или 2026-07-24 09:00
+    m = s.match(/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2}))?/);
+    if (m) return new Date(+m[1], +m[2] - 1, +m[3], +(m[4] || 0), +(m[5] || 0));
+
+    // 24.07.2026 или 24/07/2026 (при желании со временем)
+    m = s.match(/^(\d{1,2})[.\/](\d{1,2})[.\/](\d{4})(?:[ T](\d{2}):(\d{2}))?/);
+    if (m) return new Date(+m[3], +m[2] - 1, +m[1], +(m[4] || 0), +(m[5] || 0));
+
+    // 24 июля 2026
+    m = s.match(/^(\d{1,2})\s+([А-Яа-яё]+)\s+(\d{4})/);
+    if (m) {
+      var name = m[2].toLowerCase();
+      for (var key in RU_MONTHS) {
+        if (name.indexOf(key) === 0) return new Date(+m[3], RU_MONTHS[key], +m[1]);
+      }
+    }
+    return null;
+  }
+
+  // Склонение: 1 день, 2 дня, 5 дней
+  function plural(n, forms) {
+    var n10 = n % 10, n100 = n % 100;
+    if (n10 === 1 && n100 !== 11) return forms[0];
+    if (n10 >= 2 && n10 <= 4 && (n100 < 12 || n100 > 14)) return forms[1];
+    return forms[2];
+  }
+
+  function midnight(d) { return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
+
+  var dateEl = document.querySelector('.date');
+  var pill = document.getElementById('daysPill');
+  if (!dateEl || !pill) return;
+
+  var expiry = parseExpiry(dateEl.textContent);
+  if (!expiry || isNaN(expiry.getTime())) return; // не смогли разобрать — плашку не показываем
+
+  var days = Math.round((midnight(expiry) - midnight(new Date())) / 86400000);
+
+  if (days < 0) {
+    pill.textContent = 'Срок действия истёк';
+    pill.classList.add('expired');
+  } else if (days === 0) {
+    pill.textContent = 'Истекает сегодня';
+    pill.classList.add('urgent');
+  } else {
+    pill.textContent = 'Осталось ' + days + ' ' + plural(days, ['день', 'дня', 'дней']);
+    if (days <= 3) pill.classList.add('urgent');
+  }
+  pill.hidden = false;
+})();
+</script>

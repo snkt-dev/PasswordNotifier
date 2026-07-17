@@ -1,0 +1,33 @@
+package snkt.org
+
+import com.cronutils.model.CronType
+import com.cronutils.model.definition.CronDefinitionBuilder
+import com.cronutils.model.time.ExecutionTime
+import com.cronutils.parser.CronParser
+import java.time.Clock
+import java.time.Duration
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.ZonedDateTime
+import java.util.concurrent.Executors
+import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.TimeUnit
+
+private val cronExpression = System.getenv("TRIGGER_TIME")
+    ?: throw IllegalStateException("TRIGGER_TIME env variable is not set (Format: MM HH)")
+
+private val cronParser = CronParser(CronDefinitionBuilder.instanceDefinitionFor(CronType.UNIX))
+private val cron = cronParser.parse("$cronExpression * * *")
+private val executionTime = ExecutionTime.forCron(cron)
+
+fun scheduleTask(executor: ScheduledExecutorService) {
+    val now = ZonedDateTime.now()
+    val next = executionTime.nextExecution(now).get()
+    val delay = Duration.between(now, next).seconds
+
+    executor.schedule({
+        notifyAllUsersWhosePasswordsAboutToExpire()
+        scheduleTask(executor)
+    }, delay, TimeUnit.SECONDS)
+    logger.debug { "Scheduled task $next" }
+}
