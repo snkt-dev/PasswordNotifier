@@ -2,6 +2,7 @@ package snkt.org
 
 import jakarta.mail.Authenticator
 import jakarta.mail.Message
+import jakarta.mail.MessagingException
 import jakarta.mail.PasswordAuthentication
 import jakarta.mail.Session
 import jakarta.mail.Transport
@@ -9,6 +10,7 @@ import jakarta.mail.internet.InternetAddress
 import jakarta.mail.internet.MimeBodyPart
 import jakarta.mail.internet.MimeMessage
 import jakarta.mail.internet.MimeMultipart
+import java.net.ConnectException
 import java.util.Properties
 
 private val mailServer = System.getenv("MAIL_SERVER")
@@ -21,6 +23,8 @@ private val mailServerUser: String? = System.getenv("MAIL_USER")
     ?: throw IllegalStateException("MAIL_USER env variable is not set")
 
 private val mailServerPassword: String? = System.getenv("MAIL_USER_PASSWORD")
+
+private const val MAX_ATTEMPTS = 3
 
 fun sendMail(session: Session, to: String, subject: String, payload: String) {
 
@@ -40,7 +44,35 @@ fun sendMail(session: Session, to: String, subject: String, payload: String) {
     }
 
     logger.debug { "Sending message to $to" }
-    Transport.send(message)
+    for (attempt in 1..MAX_ATTEMPTS) {
+        try {
+            Transport.send(message)
+            logger.debug { "Message sent" }
+            return
+        } catch (e: MessagingException) {
+            if (attempt == MAX_ATTEMPTS) {
+                throw RuntimeException("Failed to send email to $to after $attempt attempt(s)", e)
+            }
+            logger.warn(e) { "Error sending message to $to, attempt $attempt/$MAX_ATTEMPTS" }
+            Thread.sleep(attempt * 1000L)
+        }
+    }
+
+    var i = 1
+    while (i < 4) {
+        try {
+            Transport.send(message)
+            i = 4
+        } catch (e: ConnectException) {
+            if (i == 3) {
+                throw RuntimeException("Failed to send email via mail service!", e)
+            }
+
+            logger.info { "Error sending message. Attempt: $i" }
+            i++
+            Thread.sleep(1000)
+        }
+    }
     logger.debug { "Message sent" }
 }
 

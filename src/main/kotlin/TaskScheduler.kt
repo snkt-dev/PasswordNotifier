@@ -4,12 +4,8 @@ import com.cronutils.model.CronType
 import com.cronutils.model.definition.CronDefinitionBuilder
 import com.cronutils.model.time.ExecutionTime
 import com.cronutils.parser.CronParser
-import java.time.Clock
 import java.time.Duration
-import java.time.LocalDateTime
-import java.time.LocalTime
 import java.time.ZonedDateTime
-import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 
@@ -26,8 +22,23 @@ fun scheduleTask(executor: ScheduledExecutorService) {
     val delay = Duration.between(now, next).seconds
 
     executor.schedule({
-        notifyAllUsersWhosePasswordsAboutToExpire()
+        try {
+            notifyAllUsersWhosePasswordsAboutToExpire()
+        } catch (e: Exception) {
+            logger.error(e) { "Task failed to execute." }
+        }
         scheduleTask(executor)
     }, delay, TimeUnit.SECONDS)
     logger.debug { "Scheduled task $next" }
+}
+
+fun scheduleTask(executor: ScheduledExecutorService, secondsDelay: Long) {
+    executor.schedule({
+        try {
+            notifyAllUsersWhosePasswordsAboutToExpire()
+        } catch (e: Exception) {
+            logger.error(e) { "Task failed to execute." }
+        }
+        scheduleTask(executor, secondsDelay)
+    }, secondsDelay, TimeUnit.SECONDS)
 }

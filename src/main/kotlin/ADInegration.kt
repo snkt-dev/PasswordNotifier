@@ -2,7 +2,9 @@ package snkt.org
 
 import com.unboundid.ldap.sdk.Filter
 import com.unboundid.ldap.sdk.LDAPConnection
+import com.unboundid.ldap.sdk.LDAPException
 import com.unboundid.ldap.sdk.SearchRequest
+import com.unboundid.ldap.sdk.SearchResult
 import com.unboundid.ldap.sdk.SearchScope
 import java.time.Instant
 
@@ -23,14 +25,27 @@ private val adExcludedGroup: String? = System.getenv("AD_EXCLUDED_GROUP")
 private val adUserPath = System.getenv("AD_USER_PATH")
     ?: throw IllegalStateException("AD_USER_PATH env variable is not set")
 
+private const val MAX_ATTEMPTS = 3
+
 fun fetchAllUsers(): List<Map<String, Any>> {
     logger.debug { "Connecting to LDAP..." }
-    val conn = LDAPConnection(
-        adHost,
-        adPort,
-        adUser,
-        adPassword
-    )
+    var conn: LDAPConnection? = null
+    for (attempt in 1..MAX_ATTEMPTS) {
+        try {
+            conn = LDAPConnection(
+                adHost,
+                adPort,
+                adUser,
+                adPassword
+            )
+        } catch (e: LDAPException) {
+            if (attempt == MAX_ATTEMPTS) {
+                throw RuntimeException("Failed to connect to $adHost:$adPort in $attempt attempts")
+            }
+            logger.warn(e) { "Failed to connect to $adHost:$adPort. Attempt $attempt/$MAX_ATTEMPTS" }
+            Thread.sleep(attempt * 1000L)
+        }
+    }
 
     val search = SearchRequest(
         adUserPath,
@@ -41,11 +56,24 @@ fun fetchAllUsers(): List<Map<String, Any>> {
         "displayName", "mail", "msDS-UserPasswordExpiryTimeComputed"
     )
 
-    logger.debug { "Starting user search..." }
-    val result = conn.search(search)
+    logger.debug { "Starting user fetching..." }
+    var result: SearchResult? = null
+    for (attempt in 1..MAX_ATTEMPTS) {
+        try {
+            result = conn!!.search(search)
+            logger.debug { "Fetching users completed." }
+        } catch (e: Exception) {
+            if (attempt == MAX_ATTEMPTS) {
+                throw RuntimeException("Failed to fetch users after $attempt attempts", e)
+            }
+            logger.warn(e) { "Error fetching users attempt $attempt/$MAX_ATTEMPTS" }
+            Thread.sleep(attempt * 1000L)
+        } finally {
+            conn!!.close()
+        }
+    }
 
-    logger.debug { "Fetching users completed." }
-    return result.searchEntries.filter { e ->
+    return result!!.searchEntries.filter { e ->
         logger.debug { "User check: ${e.getAttributeValue("displayName")}" }
         val ex = e.getAttributeValue("displayName") != null
                 && e.getAttributeValue("mail") != null
@@ -60,7 +88,7 @@ fun fetchAllUsers(): List<Map<String, Any>> {
             "email" to (e.getAttributeValue("mail")),
             "passwordExpiryDate" to ((msPasswordExpiryDate?.toLong()?.let { fileTimeToInstant(it) }) ?: "0")
         )
-    }.also { conn.close() }
+    }
 }
 
 private fun fileTimeToInstant(fileTime: Long): Instant? {
