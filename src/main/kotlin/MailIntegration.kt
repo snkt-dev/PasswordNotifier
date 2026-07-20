@@ -13,16 +13,16 @@ import jakarta.mail.internet.MimeMultipart
 import java.net.ConnectException
 import java.util.Properties
 
-private val mailServer = System.getenv("MAIL_SERVER")
-    ?: throw IllegalStateException("MAIL_SERVER env variable is not set")
+private val mailServer = _mailHost
+    ?: throw IllegalStateException("MAIL_SERVER variable is not set")
 
-private val mailServerPort = System.getenv("MAIL_SERVER_PORT")
-    ?: throw IllegalStateException("MAIL_SERVER_PORT env variable is not set")
+private val mailServerPort = _mailPort
+    ?: throw IllegalStateException("MAIL_SERVER_PORT variable is not set")
 
-private val mailServerUser: String? = System.getenv("MAIL_USER")
-    ?: throw IllegalStateException("MAIL_USER env variable is not set")
+private val mailServerUser: String = _mailUser
+    ?: throw IllegalStateException("MAIL_USER variable is not set")
 
-private val mailServerPassword: String? = System.getenv("MAIL_USER_PASSWORD")
+private val mailServerPassword: String? = _mailPass
 
 private const val MAX_ATTEMPTS = 3
 

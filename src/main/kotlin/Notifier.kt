@@ -13,17 +13,17 @@ import java.time.ZonedDateTime
 import kotlin.io.path.Path
 import kotlin.time.toKotlinInstant
 
-private val expiryTriggerDays = System.getenv("EXPIRY_TRIGGER_IN_DAYS")?.toLong()
-    ?: throw IllegalStateException("EXPIRY_TRIGGER_IN_DAYS env variable is not set")
+private val expiryTriggerDays = _triggerDays
+    ?: throw IllegalStateException("EXPIRY_TRIGGER_IN_DAYS variable is not set")
 
-private val adDomain = System.getenv("AD_DOMAIN")
-    ?: throw IllegalStateException("AD_DOMAIN env variable is not set")
+private val adDomain = _adDomain
+    ?: throw IllegalStateException("AD_DOMAIN variable is not set")
 
 private val htmlTemplate = Files.readString(Path("index.html"))
     ?: FileNotFoundException("File 'index.html' not found")
 
 //private val timezone = System.getenv("TIMEZONE")
-//    ?: throw IllegalStateException("TIMEZONE env variable is not set (You can get more info using command: ${BuildConfig.COMMAND_NAME} --timezones)")
+//    ?: throw IllegalStateException("TIMEZONE variable is not set (You can get more info using command: ${BuildConfig.COMMAND_NAME} --timezones)")
 
 fun notifyAllUsersWhosePasswordsAboutToExpire() {
     val users = fetchAllUsers()

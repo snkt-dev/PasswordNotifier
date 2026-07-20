@@ -9,8 +9,8 @@ import java.time.ZonedDateTime
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 
-private val cronExpression = System.getenv("TRIGGER_TIME")
-    ?: throw IllegalStateException("TRIGGER_TIME env variable is not set (Format: MM HH)")
+private val cronExpression = _mailingTime
+    ?: throw IllegalStateException("TRIGGER_TIME variable is not set (Format: MM HH)")
 
 private val cronParser = CronParser(CronDefinitionBuilder.instanceDefinitionFor(CronType.UNIX))
 private val cron = cronParser.parse("$cronExpression * * *")

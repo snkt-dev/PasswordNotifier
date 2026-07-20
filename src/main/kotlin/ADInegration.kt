@@ -8,22 +8,22 @@ import com.unboundid.ldap.sdk.SearchResult
 import com.unboundid.ldap.sdk.SearchScope
 import java.time.Instant
 
-private val adHost = System.getenv("AD_HOST")
-    ?: throw IllegalStateException("AD_HOST env variable is not set")
+private val adHost = _adHost
+    ?: throw IllegalStateException("AD_HOST variable is not set")
 
-private val adPort = System.getenv("AD_PORT")?.toInt()
-    ?: throw IllegalStateException("AD_PORT env variable is not set")
+private val adPort = _adPort
+    ?: throw IllegalStateException("AD_PORT variable is not set")
 
-private val adUser = System.getenv("AD_USER")
-    ?: throw IllegalStateException("AD_USER env variable is not set")
+private val adUser = _adUser
+    ?: throw IllegalStateException("AD_USER variable is not set")
 
-private val adPassword = System.getenv("AD_PASSWORD")
-    ?: throw IllegalStateException("AD_PASSWORD env variable is not set")
+private val adPassword = _adPass
+    ?: throw IllegalStateException("AD_PASSWORD variable is not set")
 
-private val adExcludedGroup: String? = System.getenv("AD_EXCLUDED_GROUP")
+private val adExcludedGroup: String? = _adExGroup
 
-private val adUserPath = System.getenv("AD_USER_PATH")
-    ?: throw IllegalStateException("AD_USER_PATH env variable is not set")
+private val adUserPath = _adUserPath
+    ?: throw IllegalStateException("AD_USER_PATH variable is not set")
 
 private const val MAX_ATTEMPTS = 3
 
