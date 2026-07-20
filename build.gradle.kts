@@ -2,6 +2,13 @@ plugins {
     kotlin("jvm") version "2.3.21"
     id("com.github.gmazzo.buildconfig") version "6.0.10"
     id("org.graalvm.buildtools.native") version "1.1.4"
+    id("com.gradleup.shadow") version "9.3.2"
+    application
+}
+
+
+application {
+    mainClass.set("snkt.org.MainKt")
 }
 
 group = "snkt.org"
@@ -43,20 +50,13 @@ buildConfig {
     buildConfigField("String", "COMMAND_NAME", commandName)
 }
 
+
 graalvmNative {
     binaries {
         named("main") {
             imageName.set("passnotif")
-            mainClass.set("MainKt")
+            mainClass.set("snkt.org.MainKt")
             buildArgs.add("--no-fallback")
-            buildArgs.add("-H:+ReportExceptionStackTraces")
-
-            val toolchains = project.extensions.getByType<JavaToolchainService>()
-            javaLauncher.set(toolchains.launcherFor {
-                languageVersion.set(JavaLanguageVersion.of(25))
-                vendor.set(JvmVendorSpec.matching("GraalVM Community"))
-            })
         }
-
     }
 }

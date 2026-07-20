@@ -20,6 +20,7 @@ var _mailUser: String? = null
 var _mailPass: String? = null
 var _mailingTime: String? = null
 var _adminMailAddress: String? = null
+var onlyAdminReportMode: Boolean = false
 
 
 fun main(args: Array<String>) {
@@ -38,6 +39,7 @@ fun main(args: Array<String>) {
         else if (args[optind] == "--mail_user") _mailUser = args[++optind]
         else if (args[optind] == "--mail_user_pass") _mailPass = args[++optind]
         else if (args[optind] == "--admin_mail_address") _adminMailAddress = args[++optind]
+        else if (args[optind] == "--only_admin_report_mode") onlyAdminReportMode = true
         else if (args[optind] == "--mailing_time") {
             _mailingTime = args[++optind]
             if (!Regex("\\d\\d:\\d\\d").matches(_mailingTime!!)) {
@@ -47,21 +49,7 @@ fun main(args: Array<String>) {
         }
         optind++
     }
-
-    println(_adDomain)
-    println(_adExGroup)
-    println(_adExGroup)
-    println(_adHost)
-    println(_adPass)
-    println(_adPort)
-    println(_adUser)
-    println(_adUserPath)
-    println(_mailHost)
-    println(_mailPort)
-    println(_mailUser)
-    println(_mailingTime)
-
 //    scheduleTask(executor)
-    logger.info { "Password notifier ready to work!" }
     notifyAllUsersWhosePasswordsAboutToExpire()
+    logger.info { "Password notifier ready to work!" }
 }

@@ -33,12 +33,6 @@ private val adExcludedGroup: String? = _adExGroup.also {
 private val adUserPath = _adUserPath
     ?: throw IllegalStateException("'--ad_user_path' variable is not set. Example: '--ad_user_path CN=Users,DC=snkt,DC=dev'")
 
-private val adminMailAddress = _adminMailAddress
-    ?: throw IllegalStateException("'--admin_mail_address' variable is not set")
-
-private val adminHtmlTemplate = Files.readString(Path("admin_mail.html"))
-    ?: FileNotFoundException("The file 'admin_mail.html' was not found. You should add it to the executable folder.")
-
 private const val MAX_ATTEMPTS = 3
 
 fun fetchAllUsers(): List<Map<String, Any>> {
@@ -54,7 +48,13 @@ fun fetchAllUsers(): List<Map<String, Any>> {
             )
         } catch (e: LDAPException) {
             if (attempt == MAX_ATTEMPTS) {
-                sendAdminMail(attempt, e)
+                generateErrorAdminReport(
+                    initMailSession(),
+                    adHost,
+                    adPort,
+                    adUser,
+                    attempt,
+                    e)
                 throw RuntimeException("Failed to connect to $adHost:$adPort in $attempt attempts")
             }
             logger.warn(e) { "Failed to connect to $adHost:$adPort. Attempt $attempt/$MAX_ATTEMPTS" }
@@ -80,7 +80,13 @@ fun fetchAllUsers(): List<Map<String, Any>> {
             break
         } catch (e: Exception) {
             if (attempt == MAX_ATTEMPTS) {
-                sendAdminMail(attempt, e)
+                generateErrorAdminReport(
+                    initMailSession(),
+                    adHost,
+                    adPort,
+                    adUser,
+                    attempt,
+                    e)
                 throw RuntimeException("Failed to fetch users after $attempt attempts", e)
             }
             logger.warn(e) { "Error fetching users attempt $attempt/$MAX_ATTEMPTS" }
@@ -113,23 +119,4 @@ private fun fileTimeToInstant(fileTime: Long): Instant? {
     val epochDiff = 11644473600L // секунды между 1601 и 1970
     val seconds = fileTime / 10_000_000 - epochDiff
     return Instant.ofEpochSecond(seconds)
-}
-
-private fun sendAdminMail(attempt: Int, e: Exception) {
-    logger.debug { "Sending report to admin..." }
-    sendMail(
-        initMailSession(),
-        adminMailAddress,
-        "Password notifier service error",
-        createHtmlDoc(adminHtmlTemplate as String,
-            mapOf(
-                "FailedAt" to LocalDateTime.now().toString(),
-                "ADHost" to adHost,
-                "ADPort" to adPort.toString(),
-                "ADUser" to adUser,
-                "Attempts" to attempt.toString(),
-                "ErrorMessage" to e.stackTraceToString()
-            ))
-    )
-    logger.debug { "Admin report sent" }
 }

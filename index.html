@@ -1,0 +1,331 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Отчёт: истекающие пароли пользователей</title>
+<style>
+  :root {
+    --ms-blue: #0067b8;
+    --ms-blue-dark: #005a9e;
+    --ms-bg: #f3f2f1;
+    --ms-card: #ffffff;
+    --ms-text: #201f1e;
+    --ms-text-soft: #605e5c;
+    --ms-border: #edebe9;
+    --ms-head-bg: #faf9f8;
+    --ms-row-alt: #fbfbfa;
+    --ms-hover: #f3f9fd;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    padding: 24px;
+    background: var(--ms-bg);
+    font-family: "Segoe UI", "Segoe UI Web (West European)", -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", sans-serif;
+    color: var(--ms-text);
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.5;
+  }
+
+  .card {
+    max-width: 860px;
+    margin: 0 auto;
+    background: var(--ms-card);
+    border: 1px solid var(--ms-border);
+    border-radius: 8px;
+    box-shadow: 0 6.4px 14.4px rgba(0,0,0,0.13), 0 1.2px 3.6px rgba(0,0,0,0.11);
+    overflow: hidden;
+  }
+
+  .accent-bar {
+    height: 6px;
+    background: linear-gradient(90deg, var(--ms-blue) 0%, #4aa3df 100%);
+  }
+
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 18px 28px 4px;
+  }
+  .win-logo {
+    width: 26px; height: 26px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 3px;
+    flex: none;
+  }
+  .win-logo span { display: block; background: var(--ms-blue); border-radius: 1px; }
+  .header-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ms-text-soft);
+    letter-spacing: .2px;
+  }
+
+  .body { padding: 6px 28px 24px; }
+
+  h1 {
+    font-size: 22px;
+    font-weight: 600;
+    margin: 10px 0 6px;
+    line-height: 1.25;
+  }
+  .lead {
+    font-size: 14.5px;
+    color: var(--ms-text-soft);
+    margin: 0 0 20px;
+    max-width: 62ch;
+  }
+
+  .table-wrap {
+    border: 1px solid var(--ms-border);
+    border-radius: 6px;
+    overflow-x: auto;
+  }
+
+  table.report {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  table.report th {
+    text-align: left;
+    background: var(--ms-head-bg);
+    color: var(--ms-text-soft);
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    padding: 11px 16px;
+    border-bottom: 1px solid var(--ms-border);
+    white-space: nowrap;
+  }
+  table.report td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--ms-border);
+    vertical-align: middle;
+  }
+  table.report tbody tr:last-child td { border-bottom: none; }
+  table.report tbody tr:nth-child(even) { background: var(--ms-row-alt); }
+  table.report tbody tr:hover { background: var(--ms-hover); }
+
+  td.user {
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .user-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px; height: 26px;
+    margin-right: 10px;
+    border-radius: 50%;
+    background: #deecf9;
+    color: var(--ms-blue-dark);
+    vertical-align: middle;
+  }
+  .user-icon svg { width: 15px; height: 15px; }
+
+  table.report a {
+    color: var(--ms-blue);
+    text-decoration: none;
+  }
+  table.report a:hover { text-decoration: underline; }
+
+  td.expire { white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+  /* Плашка «осталось N дней» (добавляется скриптом) */
+  .days-pill {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 12.5px;
+    font-weight: 600;
+    white-space: nowrap;
+    background: #fbe4d5;
+    color: #8a3707;
+  }
+  .days-pill.urgent { background: #fde7e9; color: #a4262c; }
+  .days-pill.expired { background: #605e5c; color: #ffffff; }
+  .days-pill.ok { background: #dff6dd; color: #0b6a0b; }
+
+  .footer {
+    border-top: 1px solid var(--ms-border);
+    padding: 14px 28px;
+    font-size: 12px;
+    color: var(--ms-text-soft);
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .footer p { margin: 0; }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ms-bg: #1b1a19;
+      --ms-card: #252423;
+      --ms-text: #f3f2f1;
+      --ms-text-soft: #c8c6c4;
+      --ms-border: #3b3a39;
+      --ms-head-bg: #2d2c2b;
+      --ms-row-alt: #2b2a29;
+      --ms-hover: #323a40;
+    }
+    .user-icon { background: #143a5a; color: #9ecbf0; }
+    .days-pill { background: #5a3a25; color: #f6c9ab; }
+    .days-pill.urgent { background: #5a2327; color: #f4b9bd; }
+    .days-pill.expired { background: #797775; color: #fff; }
+    .days-pill.ok { background: #123d12; color: #a9e0a9; }
+  }
+</style>
+
+<div class="card">
+  <div class="accent-bar"></div>
+
+  <div class="header">
+    <div class="win-logo" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+    <div class="header-title">Центр администрирования · Ежедневный отчёт</div>
+  </div>
+
+  <div class="body">
+    <h1>Пользователи с истекающим сроком действия пароля</h1>
+    <p class="lead">
+      Ниже перечислены учётные записи, пароли которых истекают в ближайшее время.
+      Свяжитесь с пользователями заранее или примите меры, чтобы избежать потери
+      доступа к рабочим ресурсам.
+    </p>
+
+    <div class="table-wrap">
+      <table class="report">
+        <thead>
+          <tr>
+            <th>Пользователь</th>
+            <th>Электронная почта</th>
+            <th>Дата истечения</th>
+          </tr>
+        </thead>
+        <tbody id="reportBody">
+          
+          <tr class="user-row">
+            <td class="user">
+              <span class="user-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="12" cy="8" r="4" fill="currentColor"/>
+                  <path d="M4 20c0-4 3.6-6 8-6s8 2 8 6" fill="currentColor"/>
+                </svg>
+              </span>Admin
+            </td>
+            <td><a href="mailto:admin@snkt.dev">admin@snkt.dev</a></td>
+            <td class="expire">2026-07-21</td>
+          </tr>
+          
+          <tr class="user-row">
+            <td class="user">
+              <span class="user-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="12" cy="8" r="4" fill="currentColor"/>
+                  <path d="M4 20c0-4 3.6-6 8-6s8 2 8 6" fill="currentColor"/>
+                </svg>
+              </span>Admin2
+            </td>
+            <td><a href="mailto:admin2@snkt.dev">admin2@snkt.dev</a></td>
+            <td class="expire">2026-07-20</td>
+          </tr>
+          
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>Автоматический отчёт службы мониторинга паролей.</p>
+    <p><span id="ts"></span></p>
+  </div>
+</div>
+
+<script>
+(function () {
+  var RU_MONTHS = {
+    'январ':0,'феврал':1,'март':2,'апрел':3,'ма':4,'июн':5,
+    'июл':6,'август':7,'сентябр':8,'октябр':9,'ноябр':10,'декабр':11
+  };
+
+  function parseExpiry(raw) {
+    if (!raw) return null;
+    var s = raw.trim();
+    if (!s || s.indexOf('{{') !== -1) return null;
+    var m;
+    m = s.match(/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2}))?/);
+    if (m) return new Date(+m[1], +m[2]-1, +m[3], +(m[4]||0), +(m[5]||0));
+    m = s.match(/^(\d{1,2})[.\/](\d{1,2})[.\/](\d{4})(?:[ T](\d{2}):(\d{2}))?/);
+    if (m) return new Date(+m[3], +m[2]-1, +m[1], +(m[4]||0), +(m[5]||0));
+    m = s.match(/^(\d{1,2})\s+([А-Яа-яё]+)\s+(\d{4})/);
+    if (m) {
+      var name = m[2].toLowerCase();
+      for (var key in RU_MONTHS) {
+        if (name.indexOf(key) === 0) return new Date(+m[3], RU_MONTHS[key], +m[1]);
+      }
+    }
+    return null;
+  }
+
+  function plural(n, f) {
+    var a = n % 10, b = n % 100;
+    if (a === 1 && b !== 11) return f[0];
+    if (a >= 2 && a <= 4 && (b < 12 || b > 14)) return f[1];
+    return f[2];
+  }
+
+  function midnight(d) { return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
+
+  // Отметка времени формирования отчёта
+  var ts = document.getElementById('ts');
+  if (ts) {
+    try { ts.textContent = 'Сформировано: ' + new Date().toLocaleString('ru-RU'); }
+    catch (e) { ts.textContent = 'Сформировано: ' + new Date().toString(); }
+  }
+
+  // Бонус-колонка «Осталось» — добавляется только если работает JS.
+  var body = document.getElementById('reportBody');
+  if (!body) return;
+  var rows = body.querySelectorAll('tr');
+  if (!rows.length) return;
+
+  // Заголовок колонки
+  var headRow = document.querySelector('table.report thead tr');
+  if (headRow) {
+    var th = document.createElement('th');
+    th.textContent = 'Осталось';
+    headRow.appendChild(th);
+  }
+
+  for (var i = 0; i < rows.length; i++) {
+    var expireCell = rows[i].querySelector('.expire');
+    var td = document.createElement('td');
+    var exp = expireCell ? parseExpiry(expireCell.textContent) : null;
+
+    if (!exp || isNaN(exp.getTime())) {
+      td.textContent = '—';
+    } else {
+      var days = Math.round((midnight(exp) - midnight(new Date())) / 86400000);
+      var pill = document.createElement('span');
+      pill.className = 'days-pill';
+      if (days < 0) {
+        pill.textContent = 'Истёк';
+        pill.className += ' expired';
+      } else if (days === 0) {
+        pill.textContent = 'Сегодня';
+        pill.className += ' urgent';
+      } else {
+        pill.textContent = days + ' ' + plural(days, ['день', 'дня', 'дней']);
+        pill.className += days <= 3 ? ' urgent' : '';
+      }
+      td.appendChild(pill);
+    }
+    rows[i].appendChild(td);
+  }
+})();
+</script>
