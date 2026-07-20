@@ -19,8 +19,8 @@ private val expiryTriggerDays = _triggerDays
 private val adDomain = _adDomain
     ?: throw IllegalStateException("'--ad_domain' variable is not set")
 
-private val htmlTemplate = Files.readString(Path("index.html"))
-    ?: FileNotFoundException("The file 'index.html' was not found. You should add it to the executable folder.")
+private val htmlTemplate = Files.readString(Path("user_mail.html"))
+    ?: FileNotFoundException("The file 'user_mail.html' was not found. You should add it to the executable folder.")
 
 //private val timezone = System.getenv("TIMEZONE")
 //    ?: throw IllegalStateException("TIMEZONE variable is not set (You can get more info using command: ${BuildConfig.COMMAND_NAME} --timezones)")

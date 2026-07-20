@@ -6,7 +6,13 @@ import com.unboundid.ldap.sdk.LDAPException
 import com.unboundid.ldap.sdk.SearchRequest
 import com.unboundid.ldap.sdk.SearchResult
 import com.unboundid.ldap.sdk.SearchScope
+import java.io.File
+import java.io.FileNotFoundException
+import java.nio.file.Files
 import java.time.Instant
+import java.time.LocalDate
+import java.time.LocalDateTime
+import kotlin.io.path.Path
 
 private val adHost = _adHost
     ?: throw IllegalStateException("'--ad_host' variable is not set")
@@ -30,6 +36,9 @@ private val adUserPath = _adUserPath
 private val adminMailAddress = _adminMailAddress
     ?: throw IllegalStateException("'--admin_mail_address' variable is not set")
 
+private val adminHtmlTemplate = Files.readString(Path("admin_mail.html"))
+    ?: FileNotFoundException("The file 'admin_mail.html' was not found. You should add it to the executable folder.")
+
 private const val MAX_ATTEMPTS = 3
 
 fun fetchAllUsers(): List<Map<String, Any>> {
@@ -45,12 +54,7 @@ fun fetchAllUsers(): List<Map<String, Any>> {
             )
         } catch (e: LDAPException) {
             if (attempt == MAX_ATTEMPTS) {
-                sendMail(
-                    initMailSession(),
-                    adminMailAddress,
-                    "AD connection error",
-                    "Password notifier is having trouble connecting to the Active Directory server."
-                )
+                sendAdminMail(attempt, e)
                 throw RuntimeException("Failed to connect to $adHost:$adPort in $attempt attempts")
             }
             logger.warn(e) { "Failed to connect to $adHost:$adPort. Attempt $attempt/$MAX_ATTEMPTS" }
@@ -76,12 +80,7 @@ fun fetchAllUsers(): List<Map<String, Any>> {
             break
         } catch (e: Exception) {
             if (attempt == MAX_ATTEMPTS) {
-                sendMail(
-                    initMailSession(),
-                    adminMailAddress,
-                    "AD fetching users error",
-                    "Password Notifier is having trouble fetching users from the Active Directory server."
-                )
+                sendAdminMail(attempt, e)
                 throw RuntimeException("Failed to fetch users after $attempt attempts", e)
             }
             logger.warn(e) { "Error fetching users attempt $attempt/$MAX_ATTEMPTS" }
@@ -114,4 +113,23 @@ private fun fileTimeToInstant(fileTime: Long): Instant? {
     val epochDiff = 11644473600L // секунды между 1601 и 1970
     val seconds = fileTime / 10_000_000 - epochDiff
     return Instant.ofEpochSecond(seconds)
+}
+
+private fun sendAdminMail(attempt: Int, e: Exception) {
+    logger.debug { "Sending report to admin..." }
+    sendMail(
+        initMailSession(),
+        adminMailAddress,
+        "Password notifier service error",
+        createHtmlDoc(adminHtmlTemplate as String,
+            mapOf(
+                "FailedAt" to LocalDateTime.now().toString(),
+                "ADHost" to adHost,
+                "ADPort" to adPort.toString(),
+                "ADUser" to adUser,
+                "Attempts" to attempt.toString(),
+                "ErrorMessage" to e.stackTraceToString()
+            ))
+    )
+    logger.debug { "Admin report sent" }
 }
