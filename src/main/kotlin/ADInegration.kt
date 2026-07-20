@@ -62,6 +62,7 @@ fun fetchAllUsers(): List<Map<String, Any>> {
         try {
             result = conn!!.search(search)
             logger.debug { "Fetching users completed." }
+            break
         } catch (e: Exception) {
             if (attempt == MAX_ATTEMPTS) {
                 throw RuntimeException("Failed to fetch users after $attempt attempts", e)
