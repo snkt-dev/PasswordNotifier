@@ -10,7 +10,7 @@ import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 
 private val cronExpression = _mailingTime
-    ?: throw IllegalStateException("TRIGGER_TIME variable is not set (Format: MM HH)")
+    ?: throw IllegalStateException("'--mailing_time' variable is not set. Usage: '--mailing_time [MM]:[HH]'")
 
 private val cronParser = CronParser(CronDefinitionBuilder.instanceDefinitionFor(CronType.UNIX))
 private val cron = cronParser.parse("$cronExpression * * *")

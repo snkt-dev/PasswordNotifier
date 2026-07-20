@@ -9,21 +9,26 @@ import com.unboundid.ldap.sdk.SearchScope
 import java.time.Instant
 
 private val adHost = _adHost
-    ?: throw IllegalStateException("AD_HOST variable is not set")
+    ?: throw IllegalStateException("'--ad_host' variable is not set")
 
 private val adPort = _adPort
-    ?: throw IllegalStateException("AD_PORT variable is not set")
+    ?: throw IllegalStateException("'--ad_port' variable is not set")
 
 private val adUser = _adUser
-    ?: throw IllegalStateException("AD_USER variable is not set")
+    ?: throw IllegalStateException("'--ad_user' variable is not set")
 
 private val adPassword = _adPass
-    ?: throw IllegalStateException("AD_PASSWORD variable is not set")
+    ?: throw IllegalStateException("'--ad_pass' variable is not set")
 
-private val adExcludedGroup: String? = _adExGroup
+private val adExcludedGroup: String? = _adExGroup.also {
+    if (it == null) logger.warn { "'--ad_ex_group' variable is not set. Example: '--ad_ex_group !ADMINS'" }
+}
 
 private val adUserPath = _adUserPath
-    ?: throw IllegalStateException("AD_USER_PATH variable is not set")
+    ?: throw IllegalStateException("'--ad_user_path' variable is not set. Example: '--ad_user_path CN=Users,DC=snkt,DC=dev'")
+
+private val adminMailAddress = _adminMailAddress
+    ?: throw IllegalStateException("'--admin_mail_address' variable is not set")
 
 private const val MAX_ATTEMPTS = 3
 
@@ -40,6 +45,12 @@ fun fetchAllUsers(): List<Map<String, Any>> {
             )
         } catch (e: LDAPException) {
             if (attempt == MAX_ATTEMPTS) {
+                sendMail(
+                    initMailSession(),
+                    adminMailAddress,
+                    "AD connection error",
+                    "Password notifier is having trouble connecting to the Active Directory server."
+                )
                 throw RuntimeException("Failed to connect to $adHost:$adPort in $attempt attempts")
             }
             logger.warn(e) { "Failed to connect to $adHost:$adPort. Attempt $attempt/$MAX_ATTEMPTS" }
@@ -65,6 +76,12 @@ fun fetchAllUsers(): List<Map<String, Any>> {
             break
         } catch (e: Exception) {
             if (attempt == MAX_ATTEMPTS) {
+                sendMail(
+                    initMailSession(),
+                    adminMailAddress,
+                    "AD fetching users error",
+                    "Password Notifier is having trouble fetching users from the Active Directory server."
+                )
                 throw RuntimeException("Failed to fetch users after $attempt attempts", e)
             }
             logger.warn(e) { "Error fetching users attempt $attempt/$MAX_ATTEMPTS" }

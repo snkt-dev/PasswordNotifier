@@ -14,13 +14,13 @@ import kotlin.io.path.Path
 import kotlin.time.toKotlinInstant
 
 private val expiryTriggerDays = _triggerDays
-    ?: throw IllegalStateException("EXPIRY_TRIGGER_IN_DAYS variable is not set")
+    ?: throw IllegalStateException("'--trigger_days' variable is not set")
 
 private val adDomain = _adDomain
-    ?: throw IllegalStateException("AD_DOMAIN variable is not set")
+    ?: throw IllegalStateException("'--ad_domain' variable is not set")
 
 private val htmlTemplate = Files.readString(Path("index.html"))
-    ?: FileNotFoundException("File 'index.html' not found")
+    ?: FileNotFoundException("The file 'index.html' was not found. You should add it to the executable folder.")
 
 //private val timezone = System.getenv("TIMEZONE")
 //    ?: throw IllegalStateException("TIMEZONE variable is not set (You can get more info using command: ${BuildConfig.COMMAND_NAME} --timezones)")

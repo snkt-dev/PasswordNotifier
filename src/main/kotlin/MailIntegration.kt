@@ -14,15 +14,17 @@ import java.net.ConnectException
 import java.util.Properties
 
 private val mailServer = _mailHost
-    ?: throw IllegalStateException("MAIL_SERVER variable is not set")
+    ?: throw IllegalStateException("'--mail_host' variable is not set")
 
 private val mailServerPort = _mailPort
-    ?: throw IllegalStateException("MAIL_SERVER_PORT variable is not set")
+    ?: throw IllegalStateException("'--mail_port' variable is not set")
 
 private val mailServerUser: String = _mailUser
-    ?: throw IllegalStateException("MAIL_USER variable is not set")
+    ?: throw IllegalStateException("'--mail_user' variable is not set")
 
-private val mailServerPassword: String? = _mailPass
+private val mailServerPassword: String? = _mailPass.also {
+    if (it == null) logger.warn { "'--mail_pass' variable is not set" }
+}
 
 private const val MAX_ATTEMPTS = 3
 
