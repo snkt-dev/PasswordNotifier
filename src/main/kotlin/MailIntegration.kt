@@ -85,9 +85,9 @@ fun initMailSession(): Session {
         put("mail.smtp.port", mailServerPort)
         put("mail.smtp.auth", mailServerPassword != null)
         put("mail.smtp.starttls.enable", "false")
-        put("mail.smtp.connectiontimeout", "5000")
-        put("mail.smtp.timeout", "5000")
-        put("mail.smtp.writetimeout", "5000")
+        put("mail.smtp.connectiontimeout", "30000")
+        put("mail.smtp.timeout", "30000")
+        put("mail.smtp.writetimeout", "30000")
 //        put("mail.debug", "true")
     }
 

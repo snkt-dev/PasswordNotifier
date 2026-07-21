@@ -37,7 +37,7 @@ fun main(args: Array<String>) {
         else if (args[optind] == "--mail_host") _mailHost = args[++optind]
         else if (args[optind] == "--mail_port") _mailPort = args[++optind].toInt()
         else if (args[optind] == "--mail_user") _mailUser = args[++optind]
-        else if (args[optind] == "--mail_user_pass") _mailPass = args[++optind]
+        else if (args[optind] == "--mail_pass") _mailPass = args[++optind]
         else if (args[optind] == "--admin_mail_address") _adminMailAddress = args[++optind]
         else if (args[optind] == "--only_admin_report_mode") onlyAdminReportMode = true
         else if (args[optind] == "--mailing_time") {
