@@ -21,6 +21,7 @@ var _mailPass: String? = null
 var _mailingTime: String? = null
 var _adminMailAddress: String? = null
 var onlyAdminReportMode: Boolean = false
+var mailingThreadCount: Int = 3
 
 
 fun main(args: Array<String>) {
@@ -40,6 +41,7 @@ fun main(args: Array<String>) {
         else if (args[optind] == "--mail_pass") _mailPass = args[++optind]
         else if (args[optind] == "--admin_mail_address") _adminMailAddress = args[++optind]
         else if (args[optind] == "--only_admin_report_mode") onlyAdminReportMode = true
+        else if (args[optind] == "--mailing_thread_count") mailingThreadCount = args[++optind].toInt()
         else if (args[optind] == "--mailing_time") {
             _mailingTime = args[++optind]
             if (!Regex("\\d\\d:\\d\\d").matches(_mailingTime!!)) {
@@ -52,4 +54,6 @@ fun main(args: Array<String>) {
 //    scheduleTask(executor)
     notifyAllUsersWhosePasswordsAboutToExpire()
     logger.info { "Password notifier ready to work!" }
+
+    shutdownMailingPool()
 }

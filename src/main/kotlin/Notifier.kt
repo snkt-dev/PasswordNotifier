@@ -5,6 +5,8 @@ import java.nio.file.Files
 import java.time.Duration
 import java.time.Instant
 import java.time.ZonedDateTime
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 import kotlin.io.path.Path
 
 private val expiryTriggerDays = _triggerDays
@@ -24,6 +26,8 @@ private val htmlTemplate by lazy {
     }
 }
 
+private val pool = Executors.newFixedThreadPool(mailingThreadCount)
+
 fun notifyAllUsersWhosePasswordsAboutToExpire() {
     val users = fetchAllUsers()
     val mailSession = initMailSession()
@@ -39,25 +43,39 @@ fun notifyAllUsersWhosePasswordsAboutToExpire() {
 
     if (!onlyAdminReportMode) {
         filtered.forEach { user ->
-            logger.debug { "Sending mail to ${user["email"]}" }
-            sendMail(
-                session = mailSession,
-                to = user["email"].toString(),
-                subject = "Ваш пароль аккаунта Windows скоро истечет!",
-                payload = createHtmlDoc(
-                    htmlTemplate as String,
-                    mapOf(
-                        "Name" to user["name"].toString(),
-                        "PasswordExpiryDate" to ZonedDateTime
-                            .parse(user["passwordExpiryDate"].toString())
-                            .toLocalDate()
-                            .toString(),
-                        "Domain" to adDomain
+            try {
+                pool.execute {
+                    logger.debug { "Sending mail to ${user["email"]}" }
+                    sendMail(
+                        session = mailSession,
+                        to = user["email"].toString(),
+                        subject = "Ваш пароль аккаунта Windows скоро истечет!",
+                        payload = createHtmlDoc(
+                            htmlTemplate as String,
+                            mapOf(
+                                "Name" to user["name"].toString(),
+                                "PasswordExpiryDate" to ZonedDateTime
+                                    .parse(user["passwordExpiryDate"].toString())
+                                    .toLocalDate()
+                                    .toString(),
+                                "Domain" to adDomain
+                            )
+                        )
                     )
-                )
-            )
+                }
+            } catch (e: Exception) {
+                logger.error(e) { "Failed to send mail to ${user["email"]}" }
+            }
         }
     }
 
     generateExpiryUsersAdminReport(mailSession, filtered)
+}
+
+fun shutdownMailingPool() {
+    pool.shutdown()
+    if (!pool.awaitTermination(5, TimeUnit.MINUTES)) {
+        logger.error { "Pool didn't terminate in time" }
+        pool.shutdownNow()
+    }
 }
