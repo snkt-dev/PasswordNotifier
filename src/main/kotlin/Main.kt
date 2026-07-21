@@ -19,7 +19,9 @@ var _mailPort: Int? = null
 var _mailUser: String? = null
 var _mailPass: String? = null
 var _mailingTime: String? = null
-var _adminMailAddress: String? = null
+var _adminMailAddresses: List<String>? = null
+var _enableStartTls: Boolean = false
+var _debugMode: Boolean = false
 var onlyAdminReportMode: Boolean = false
 
 
@@ -38,8 +40,10 @@ fun main(args: Array<String>) {
         else if (args[optind] == "--mail_port") _mailPort = args[++optind].toInt()
         else if (args[optind] == "--mail_user") _mailUser = args[++optind]
         else if (args[optind] == "--mail_pass") _mailPass = args[++optind]
-        else if (args[optind] == "--admin_mail_address") _adminMailAddress = args[++optind]
+        else if (args[optind] == "--admin_mail_address") _adminMailAddresses = args[++optind].split(":")
         else if (args[optind] == "--only_admin_report_mode") onlyAdminReportMode = true
+        else if (args[optind] == "--enable_start_tls") _enableStartTls = true
+        else if (args[optind] == "--debug") _debugMode = true
         else if (args[optind] == "--mailing_time") {
             _mailingTime = args[++optind]
             if (!Regex("\\d\\d:\\d\\d").matches(_mailingTime!!)) {

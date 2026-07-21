@@ -1,10 +1,6 @@
 package snkt.org
 
-import java.io.FileNotFoundException
 import java.nio.file.Files
-import java.time.Duration
-import java.time.Instant
-import java.time.ZonedDateTime
 import kotlin.io.path.Path
 
 private val expiryTriggerDays = _triggerDays
@@ -32,9 +28,7 @@ fun notifyAllUsersWhosePasswordsAboutToExpire() {
         if (user["passwordExpiryDate"] == "0") return@filter false
 
         logger.debug { "Filtering ${user["name"]} - ${user["passwordExpiryDate"]}" }
-        Instant.now()
-            .plus(Duration.ofDays(expiryTriggerDays))
-            .isAfter((user["passwordExpiryDate"] as Instant))
+        user["daysToExpire"]!!.toInt() <= expiryTriggerDays
     }.toList()
 
     if (!onlyAdminReportMode) {
@@ -42,17 +36,15 @@ fun notifyAllUsersWhosePasswordsAboutToExpire() {
             logger.debug { "Sending mail to ${user["email"]}" }
             sendMail(
                 session = mailSession,
-                to = user["email"].toString(),
+                to = user["email"]!!,
                 subject = "Ваш пароль аккаунта Windows скоро истечет!",
                 payload = createHtmlDoc(
-                    htmlTemplate as String,
+                    htmlTemplate,
                     mapOf(
-                        "Name" to user["name"].toString(),
-                        "PasswordExpiryDate" to ZonedDateTime
-                            .parse(user["passwordExpiryDate"].toString())
-                            .toLocalDate()
-                            .toString(),
-                        "Domain" to adDomain
+                        "name" to user["name"]!!,
+                        "passwordExpiryDate" to user["passwordExpiryDate"]!!,
+                        "domain" to adDomain,
+                        "daysToExpire" to user["daysToExpire"]!!
                     )
                 )
             )

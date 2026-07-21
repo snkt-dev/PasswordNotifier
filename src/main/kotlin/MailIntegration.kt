@@ -26,6 +26,12 @@ private val mailServerPassword: String? = _mailPass.also {
     if (it == null) logger.warn { "'--mail_pass' variable is not set" }
 }
 
+private val isStartTlsEnabled: Boolean = _enableStartTls.also {
+    if (!it) logger.warn { "StartTLS disabled. If you want to enable it, you should add '--enable_start_tls' variable" }
+}
+
+private val debugMode: Boolean = _debugMode
+
 private const val MAX_ATTEMPTS = 3
 
 fun sendMail(session: Session, to: String, subject: String, payload: String) {
@@ -84,11 +90,12 @@ fun initMailSession(): Session {
         put("mail.smtp.host", mailServer)
         put("mail.smtp.port", mailServerPort)
         put("mail.smtp.auth", mailServerPassword != null)
-        put("mail.smtp.starttls.enable", "false")
+        put("mail.smtp.starttls.enable", isStartTlsEnabled)
         put("mail.smtp.connectiontimeout", "30000")
         put("mail.smtp.timeout", "30000")
         put("mail.smtp.writetimeout", "30000")
-//        put("mail.debug", "true")
+        put("mail.smtp.ssl.protocols", "TLSv1.2")
+        put("mail.smtp.sll.trust", "*")
     }
 
     if (mailServerPassword != null) {
@@ -98,5 +105,8 @@ fun initMailSession(): Session {
                 PasswordAuthentication(mailServerUser, mailServerPassword)
         })
     }
-    return Session.getInstance(props)
+
+    val session = Session.getInstance(props)
+    session.debug = debugMode
+    return session
 }

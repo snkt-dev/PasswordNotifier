@@ -1,18 +1,11 @@
 package snkt.org
 
-import com.unboundid.ldap.sdk.Filter
-import com.unboundid.ldap.sdk.LDAPConnection
-import com.unboundid.ldap.sdk.LDAPException
-import com.unboundid.ldap.sdk.SearchRequest
-import com.unboundid.ldap.sdk.SearchResult
-import com.unboundid.ldap.sdk.SearchScope
-import java.io.File
-import java.io.FileNotFoundException
-import java.nio.file.Files
+import com.unboundid.ldap.sdk.*
 import java.time.Instant
 import java.time.LocalDate
-import java.time.LocalDateTime
-import kotlin.io.path.Path
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 
 private val adHost = _adHost
     ?: throw IllegalStateException("'--ad_host' variable is not set")
@@ -35,7 +28,7 @@ private val adUserPath = _adUserPath
 
 private const val MAX_ATTEMPTS = 3
 
-fun fetchAllUsers(): List<Map<String, Any>> {
+fun fetchAllUsers(): List<Map<String, String>> {
     logger.debug { "Connecting to LDAP..." }
     var conn: LDAPConnection? = null
     for (attempt in 1..MAX_ATTEMPTS) {
@@ -65,7 +58,7 @@ fun fetchAllUsers(): List<Map<String, Any>> {
     val search = SearchRequest(
         adUserPath,
         SearchScope.SUB,
-        Filter.create("(&(objectClass=user)(objectCategory=person)${
+        Filter.create("(&(objectClass=user)(objectCategory=person)(!(userAccountControl:1.2.840.113556.1.4.803:=2))(!(userAccountControl:1.2.840.113556.1.4.803:=65536))${
             if (adExcludedGroup != null) "(!(memberOf=$adExcludedGroup))" else ""
         })"),
         "displayName", "mail", "msDS-UserPasswordExpiryTimeComputed"
@@ -101,22 +94,34 @@ fun fetchAllUsers(): List<Map<String, Any>> {
         val ex = e.getAttributeValue("displayName") != null
                 && e.getAttributeValue("mail") != null
                 && e.getAttributeValue("msDS-UserPasswordExpiryTimeComputed") != null
+                && e.getAttributeValue("msDS-UserPasswordExpiryTimeComputed").toLong() != 0L
         logger.debug { "User check result: $ex" }
         ex
     }.map { e ->
-        val msPasswordExpiryDate: String? = e.getAttributeValue("msDS-UserPasswordExpiryTimeComputed")
+        val msPasswordExpiryDate: String = e.getAttributeValue("msDS-UserPasswordExpiryTimeComputed")
 
         mapOf(
             "name" to (e.getAttributeValue("displayName")),
             "email" to (e.getAttributeValue("mail")),
-            "passwordExpiryDate" to ((msPasswordExpiryDate?.toLong()?.let { fileTimeToInstant(it) }) ?: "0")
+            "passwordExpiryDate" to msPasswordExpiryDate.toLong().let { fileTime ->
+                fileTimeToInstant(fileTime)
+                    .atZone(ZoneId.systemDefault())
+                    .format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))
+            },
+            "daysToExpire" to msPasswordExpiryDate.toLong().let { fileTime ->
+                fileTimeToInstant(fileTime).let { instant ->
+                    ChronoUnit.DAYS.between(
+                        LocalDate.now(),
+                        instant.atZone(ZoneId.systemDefault()).toLocalDate()
+                    )
+                }
+            }.toString()
         )
     }
 }
 
-private fun fileTimeToInstant(fileTime: Long): Instant? {
-    if (fileTime == 0L || fileTime == 0x7FFFFFFFFFFFFFFFL) return null
-    val epochDiff = 11644473600L // секунды между 1601 и 1970
-    val seconds = fileTime / 10_000_000 - epochDiff
-    return Instant.ofEpochSecond(seconds)
-}
+    private fun fileTimeToInstant(fileTime: Long): Instant {
+        val epochDiff = 11644473600L // секунды между 1601 и 1970
+        val seconds = fileTime / 10_000_000 - epochDiff
+        return Instant.ofEpochSecond(seconds)
+    }

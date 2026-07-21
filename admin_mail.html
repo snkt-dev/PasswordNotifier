@@ -1,338 +1,172 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="format-detection" content="telephone=no, date=no, address=no, email=no">
 <title>Сбой рассылки уведомлений о паролях</title>
+<!--[if mso]>
+<noscript><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml></noscript>
+<![endif]-->
 <style>
-  :root {
-    --ms-blue: #0067b8;
-    --ms-bg: #f3f2f1;
-    --ms-card: #ffffff;
-    --ms-text: #201f1e;
-    --ms-text-soft: #605e5c;
-    --ms-border: #edebe9;
-    --ms-error: #a4262c;
-    --ms-error-strong: #d13438;
-    --ms-error-bg: #fdf3f4;
-    --ms-error-border: #f0c9cc;
-    --ms-code-bg: #f8f8f8;
-  }
-
-  * { box-sizing: border-box; }
-
-  body {
-    margin: 0;
-    padding: 24px;
-    background: var(--ms-bg);
-    font-family: "Segoe UI", "Segoe UI Web (West European)", -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", sans-serif;
-    color: var(--ms-text);
-    -webkit-font-smoothing: antialiased;
-    line-height: 1.5;
-  }
-
-  .card {
-    max-width: 680px;
-    margin: 0 auto;
-    background: var(--ms-card);
-    border: 1px solid var(--ms-border);
-    border-radius: 8px;
-    box-shadow: 0 6.4px 14.4px rgba(0,0,0,0.13), 0 1.2px 3.6px rgba(0,0,0,0.11);
-    overflow: hidden;
-  }
-
-  .accent-bar {
-    height: 6px;
-    background: linear-gradient(90deg, var(--ms-error) 0%, var(--ms-error-strong) 100%);
-  }
-
-  .header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 18px 28px 6px;
-  }
-  .header-left {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-  .win-logo {
-    width: 26px;
-    height: 26px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1fr 1fr;
-    gap: 3px;
-    flex: none;
-  }
-  .win-logo span { display: block; background: var(--ms-blue); border-radius: 1px; }
-  .header-title {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--ms-text-soft);
-    letter-spacing: .2px;
-  }
-
-  .body { padding: 8px 28px 28px; }
-
-  .err-icon {
-    width: 52px; height: 52px;
-    margin: 8px 0 14px;
-    color: var(--ms-error-strong);
-  }
-
-  h1 {
-    font-size: 23px;
-    font-weight: 600;
-    margin: 0 0 8px;
-    line-height: 1.25;
-  }
-  .lead {
-    font-size: 15px;
-    color: var(--ms-text);
-    margin: 0 0 22px;
-  }
-
-  /* Панель с технич. деталями */
-  .details {
-    background: var(--ms-error-bg);
-    border: 1px solid var(--ms-error-border);
-    border-left: 4px solid var(--ms-error);
-    border-radius: 6px;
-    padding: 6px 20px;
-    margin: 0 0 24px;
-  }
-  .details .row {
-    display: flex;
-    align-items: baseline;
-    gap: 16px;
-    padding: 12px 0;
-    border-bottom: 1px solid var(--ms-error-border);
-  }
-  .details .row:last-child { border-bottom: none; }
-  .details .k {
-    flex: 0 0 190px;
-    font-size: 13px;
-    color: var(--ms-text-soft);
-    text-transform: uppercase;
-    letter-spacing: .5px;
-  }
-  .details .v {
-    font-size: 15px;
-    font-weight: 600;
-    word-break: break-all;
-  }
-  code, .mono {
-    font-family: "Cascadia Code", "Consolas", "Courier New", monospace;
-    font-size: 14px;
-    background: var(--ms-code-bg);
-    border: 1px solid var(--ms-border);
-    border-radius: 4px;
-    padding: 1px 7px;
-  }
-  .v .attempts {
-    color: var(--ms-error-strong);
-    font-size: 17px;
-  }
-
-  /* Блок с текстом исключения LDAP — «консоль» */
-  .error-output {
-    margin: 0 0 24px;
-    border: 1px solid var(--ms-border);
-    border-radius: 6px;
-    overflow: hidden;
-  }
-  .error-output__label {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: #f8f8f8;
-    border-bottom: 1px solid var(--ms-border);
-    padding: 8px 14px;
-    font-size: 12px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: .5px;
-    color: var(--ms-text-soft);
-  }
-  .error-output__label svg { width: 16px; height: 16px; color: var(--ms-error-strong); }
-  .error-output__body {
-    margin: 0;
-    padding: 14px;
-    background: #1e1e1e;
-    color: #f48771;
-    font-family: "Cascadia Code", "Consolas", "Courier New", monospace;
-    font-size: 13px;
-    line-height: 1.55;
-    white-space: pre-wrap;
-    word-break: break-word;
-    overflow-x: auto;
-  }
-
-  h2 { font-size: 16px; font-weight: 600; margin: 0 0 14px; }
-
-  ul.checklist {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-  ul.checklist li {
-    position: relative;
-    padding: 0 0 14px 30px;
-    font-size: 14.5px;
-  }
-  ul.checklist li:last-child { padding-bottom: 0; }
-  ul.checklist li::before {
-    content: "";
-    position: absolute;
-    left: 0; top: 4px;
-    width: 16px; height: 16px;
-    border: 2px solid var(--ms-blue);
-    border-radius: 3px;
-  }
-
-  .tip {
-    display: flex;
-    gap: 10px;
-    background: #fffbf0;
-    border: 1px solid #f2e2b8;
-    border-radius: 6px;
-    padding: 14px 16px;
-    margin: 22px 0 0;
-    font-size: 13.5px;
-    color: var(--ms-text-soft);
-  }
-  .tip svg { width: 18px; height: 18px; flex: none; color: #a97a00; margin-top: 1px; }
-
-  .footer {
-    border-top: 1px solid var(--ms-border);
-    padding: 16px 28px;
-    font-size: 12px;
-    color: var(--ms-text-soft);
-    display: flex;
-    justify-content: space-between;
-    gap: 12px;
-    flex-wrap: wrap;
-  }
-  .footer p { margin: 0; }
-
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --ms-bg: #1b1a19;
-      --ms-card: #252423;
-      --ms-text: #f3f2f1;
-      --ms-text-soft: #c8c6c4;
-      --ms-border: #3b3a39;
-      --ms-error-bg: #3a2224;
-      --ms-error-border: #6e3438;
-      --ms-code-bg: #1e1d1c;
-    }
-    .error-output__label { background: #2d2c2b; }
-  }
-
-  @media (max-width: 520px) {
-    .details .row { flex-direction: column; gap: 2px; }
-    .details .k { flex-basis: auto; }
+  body, table, td, a { -webkit-text-size-adjust:100%; -ms-text-size-adjust:100%; }
+  table, td { mso-table-lspace:0pt; mso-table-rspace:0pt; }
+  body { margin:0; padding:0; width:100% !important; }
+  a { color:#0067b8; }
+  @media only screen and (max-width:600px) {
+    .container { width:100% !important; }
+    .outer { padding:12px 8px !important; }
+    .px { padding-left:16px !important; padding-right:16px !important; }
+    .h1 { font-size:20px !important; }
+    .kv-k { display:block !important; width:100% !important; padding-bottom:0 !important; border-bottom:none !important; }
+    .kv-v { display:block !important; width:100% !important; padding-top:2px !important; }
+    .errbody { font-size:12px !important; }
   }
 </style>
+</head>
+<body style="margin:0; padding:0; background-color:#f3f2f1;">
+  <div style="display:none; max-height:0; overflow:hidden; opacity:0; mso-hide:all;">Сбой рассылки уведомлений о паролях — требуется вмешательство администратора.</div>
 
-<div class="card">
-  <div class="accent-bar"></div>
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f3f2f1" style="background-color:#f3f2f1;">
+    <tr>
+      <td class="outer" align="center" style="padding:24px 12px;">
+        <!--[if mso]><table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0"><tr><td><![endif]-->
+        <table role="presentation" class="container" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px; max-width:600px; background-color:#ffffff; border:1px solid #edebe9; border-radius:8px;">
 
-  <div class="header">
-    <div class="header-left">
-      <div class="win-logo" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
-      <div class="header-title">Центр администрирования · Мониторинг рассылки</div>
-    </div>
-  </div>
+          <!-- Акцентная полоса -->
+          <tr><td height="6" bgcolor="#a4262c" style="height:6px; line-height:6px; font-size:0;">&nbsp;</td></tr>
 
-  <div class="body">
-    <svg class="err-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <circle cx="12" cy="12" r="9" fill="currentColor" opacity="0.12"/>
-      <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/>
-      <path d="M12 7.5v5.2M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-    </svg>
+          <!-- Шапка -->
+          <tr>
+            <td class="px" style="padding:18px 28px 6px 28px;">
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td valign="middle" style="padding-right:12px;">
+                    <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                      <tr>
+                        <td width="11" height="11" bgcolor="#0067b8" style="font-size:0; line-height:0;">&nbsp;</td>
+                        <td width="3" style="font-size:0; line-height:0;">&nbsp;</td>
+                        <td width="11" height="11" bgcolor="#0067b8" style="font-size:0; line-height:0;">&nbsp;</td>
+                      </tr>
+                      <tr><td colspan="3" height="3" style="font-size:0; line-height:0;">&nbsp;</td></tr>
+                      <tr>
+                        <td width="11" height="11" bgcolor="#0067b8" style="font-size:0; line-height:0;">&nbsp;</td>
+                        <td width="3" style="font-size:0; line-height:0;">&nbsp;</td>
+                        <td width="11" height="11" bgcolor="#0067b8" style="font-size:0; line-height:0;">&nbsp;</td>
+                      </tr>
+                    </table>
+                  </td>
+                  <td valign="middle" style="font-family:'Segoe UI',Arial,sans-serif; font-size:14px; font-weight:bold; color:#605e5c;">Центр администрирования &middot; Мониторинг рассылки</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
 
-    <h1>Сбой рассылки уведомлений о паролях</h1>
-    <p class="lead">
-      Служба не смогла отправить уведомления о скором истечении срока действия паролей.
-      Не удалось установить соединение с контроллером домена для получения списка
-      пользователей. Автоматические повторы исчерпаны — <b>требуется вмешательство администратора</b>.
-    </p>
+          <!-- Тело -->
+          <tr>
+            <td class="px" style="padding:14px 28px 28px 28px; font-family:'Segoe UI',Arial,sans-serif; color:#201f1e;">
 
-    <div class="details">
-      <div class="row">
-        <div class="k">Время сбоя</div>
-        <div class="v">{{FailedAt}}</div>
-      </div>
-      <div class="row">
-        <div class="k">Контроллер домена</div>
-        <div class="v"><span class="mono">{{ADHost}}</span></div>
-      </div>
-      <div class="row">
-        <div class="k">Порт LDAP</div>
-        <div class="v"><span class="mono">{{ADPort}}</span></div>
-      </div>
-      <div class="row">
-        <div class="k">Конечная точка</div>
-        <div class="v"><span class="mono">{{ADHost}}:{{ADPort}}</span></div>
-      </div>
-      <div class="row">
-        <div class="k">Учётная запись службы</div>
-        <div class="v"><span class="mono">{{ADUser}}</span></div>
-      </div>
-      <div class="row">
-        <div class="k">Выполнено попыток</div>
-        <div class="v"><span class="attempts">{{Attempts}}</span></div>
-      </div>
-    </div>
+              <!-- Иконка ошибки -->
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:6px 0 14px 0;">
+                <tr>
+                  <td width="46" height="46" align="center" valign="middle" bgcolor="#d13438" style="border-radius:23px; font-family:'Segoe UI',Arial,sans-serif; font-size:30px; font-weight:bold; color:#ffffff; line-height:46px;">!</td>
+                </tr>
+              </table>
 
-    <div class="error-output">
-      <div class="error-output__label">
-        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <path d="M8 9l-4 3 4 3M16 9l4 3-4 3M13 6l-2 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        Текст ошибки (LDAP)
-      </div>
-      <pre class="error-output__body">{{ErrorMessage}}</pre>
-    </div>
+              <h1 class="h1" style="margin:0 0 8px 0; font-size:23px; line-height:1.25; font-weight:bold; color:#201f1e;">Сбой рассылки уведомлений о паролях</h1>
+              <p style="margin:0 0 22px 0; font-size:15px; line-height:1.5; color:#201f1e;">Служба не смогла отправить уведомления о скором истечении срока действия паролей. Не удалось установить соединение с контроллером домена. Автоматические повторы исчерпаны — <b>требуется вмешательство администратора</b>.</p>
 
-    <h2>Что проверить</h2>
-    <ul class="checklist">
-      <li>Доступность контроллера домена <span class="mono">{{ADHost}}</span> по сети (ping / трассировка).</li>
-      <li>Открыт ли порт <span class="mono">{{ADPort}}</span> и не блокирует ли его брандмауэр.</li>
-      <li>Работает ли служба Active Directory Domain Services (AD DS) на сервере.</li>
-      <li>Действительны ли учётные данные и права сервисной учётной записи <span class="mono">{{ADUser}}</span> (не истёк ли пароль, не заблокирована ли).</li>
-      <li>Для защищённого соединения (LDAPS, порт 636) — срок действия и валидность сертификата.</li>
-    </ul>
+              <!-- Технические детали -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#fdf3f4" style="background-color:#fdf3f4; border:1px solid #f0c9cc; border-radius:6px;">
+                <tr>
+                  <td width="4" bgcolor="#a4262c" style="width:4px; font-size:0; line-height:0;">&nbsp;</td>
+                  <td style="padding:6px 18px;">
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="font-family:'Segoe UI',Arial,sans-serif;">
+                      <tr>
+                        <td class="kv-k" width="190" valign="top" style="padding:11px 0; font-size:12px; text-transform:uppercase; letter-spacing:.5px; color:#605e5c; border-bottom:1px solid #f0c9cc;">Время сбоя</td>
+                        <td class="kv-v" valign="top" style="padding:11px 0; font-size:15px; font-weight:bold; color:#201f1e; border-bottom:1px solid #f0c9cc;">{{FailedAt}}</td>
+                      </tr>
+                      <tr>
+                        <td class="kv-k" valign="top" style="padding:11px 0; font-size:12px; text-transform:uppercase; letter-spacing:.5px; color:#605e5c; border-bottom:1px solid #f0c9cc;">Контроллер домена</td>
+                        <td class="kv-v" valign="top" style="padding:11px 0; font-family:Consolas,'Courier New',monospace; font-size:14px; font-weight:bold; color:#201f1e; border-bottom:1px solid #f0c9cc;">{{ADHost}}</td>
+                      </tr>
+                      <tr>
+                        <td class="kv-k" valign="top" style="padding:11px 0; font-size:12px; text-transform:uppercase; letter-spacing:.5px; color:#605e5c; border-bottom:1px solid #f0c9cc;">Порт LDAP</td>
+                        <td class="kv-v" valign="top" style="padding:11px 0; font-family:Consolas,'Courier New',monospace; font-size:14px; font-weight:bold; color:#201f1e; border-bottom:1px solid #f0c9cc;">{{ADPort}}</td>
+                      </tr>
+                      <tr>
+                        <td class="kv-k" valign="top" style="padding:11px 0; font-size:12px; text-transform:uppercase; letter-spacing:.5px; color:#605e5c; border-bottom:1px solid #f0c9cc;">Учётная запись службы</td>
+                        <td class="kv-v" valign="top" style="padding:11px 0; font-family:Consolas,'Courier New',monospace; font-size:14px; font-weight:bold; color:#201f1e; border-bottom:1px solid #f0c9cc;">{{ADUser}}</td>
+                      </tr>
+                      <tr>
+                        <td class="kv-k" valign="top" style="padding:11px 0; font-size:12px; text-transform:uppercase; letter-spacing:.5px; color:#605e5c;">Выполнено попыток</td>
+                        <td class="kv-v" valign="top" style="padding:11px 0; font-size:17px; font-weight:bold; color:#d13438;">{{Attempts}}</td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
 
-    <div class="tip">
-      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <path d="M12 3l9 16H3l9-16z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
-        <path d="M12 10v4m0 2.5h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-      </svg>
-      <div>
-        После устранения причины запустите повторную рассылку вручную или дождитесь
-        следующего запланированного цикла. До этого момента пользователи
-        <b>не получат</b> предупреждения об истечении срока действия паролей.
-      </div>
-    </div>
-  </div>
+              <!-- Текст ошибки (LDAP) -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:24px;">
+                <tr>
+                  <td bgcolor="#faf9f8" style="padding:8px 14px; border:1px solid #edebe9; font-family:'Segoe UI',Arial,sans-serif; font-size:12px; font-weight:bold; text-transform:uppercase; letter-spacing:.5px; color:#605e5c;">Текст ошибки (LDAP)</td>
+                </tr>
+                <tr>
+                  <td class="errbody" bgcolor="#1e1e1e" style="padding:14px; border:1px solid #edebe9; border-top:none; font-family:Consolas,'Courier New',monospace; font-size:13px; line-height:1.55; color:#f48771; word-break:break-word;">{{ErrorMessage}}</td>
+                </tr>
+              </table>
 
-  <div class="footer">
-    <p>Автоматическое оповещение службы мониторинга.</p>
-    <p><span id="ts"></span></p>
-  </div>
-</div>
+              <p style="margin:24px 0 14px 0; font-size:16px; font-weight:bold; color:#201f1e;">Что проверить</p>
 
-<script>
-  // Локальная отметка времени формирования оповещения
-  (function () {
-    var el = document.getElementById('ts');
-    if (!el) return;
-    try {
-      el.textContent = 'Сформировано: ' + new Date().toLocaleString('ru-RU');
-    } catch (e) {
-      el.textContent = 'Сформировано: ' + new Date().toString();
-    }
-  })();
-</script>
+              <!-- Чек-лист -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="font-family:'Segoe UI',Arial,sans-serif;">
+                <tr>
+                  <td width="18" valign="top" style="padding:0 12px 12px 0;"><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td width="14" height="14" style="border:2px solid #0067b8; border-radius:3px; font-size:0; line-height:0;">&nbsp;</td></tr></table></td>
+                  <td valign="top" style="padding:0 0 12px 0; font-size:14px; line-height:1.45; color:#201f1e;">Доступность контроллера домена <b>{{ADHost}}</b> по сети (ping / трассировка).</td>
+                </tr>
+                <tr>
+                  <td width="18" valign="top" style="padding:0 12px 12px 0;"><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td width="14" height="14" style="border:2px solid #0067b8; border-radius:3px; font-size:0; line-height:0;">&nbsp;</td></tr></table></td>
+                  <td valign="top" style="padding:0 0 12px 0; font-size:14px; line-height:1.45; color:#201f1e;">Открыт ли порт <b>{{ADPort}}</b> и не блокирует ли его брандмауэр.</td>
+                </tr>
+                <tr>
+                  <td width="18" valign="top" style="padding:0 12px 12px 0;"><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td width="14" height="14" style="border:2px solid #0067b8; border-radius:3px; font-size:0; line-height:0;">&nbsp;</td></tr></table></td>
+                  <td valign="top" style="padding:0 0 12px 0; font-size:14px; line-height:1.45; color:#201f1e;">Работает ли служба Active Directory Domain Services (AD DS) на сервере.</td>
+                </tr>
+                <tr>
+                  <td width="18" valign="top" style="padding:0 12px 12px 0;"><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td width="14" height="14" style="border:2px solid #0067b8; border-radius:3px; font-size:0; line-height:0;">&nbsp;</td></tr></table></td>
+                  <td valign="top" style="padding:0 0 12px 0; font-size:14px; line-height:1.45; color:#201f1e;">Действительны ли учётные данные и права учётной записи <b>{{ADUser}}</b> (не истёк ли пароль, не заблокирована ли).</td>
+                </tr>
+                <tr>
+                  <td width="18" valign="top" style="padding:0 12px 0 0;"><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td width="14" height="14" style="border:2px solid #0067b8; border-radius:3px; font-size:0; line-height:0;">&nbsp;</td></tr></table></td>
+                  <td valign="top" style="font-size:14px; line-height:1.45; color:#201f1e;">Для защищённого соединения (LDAPS, порт 636) — срок действия и валидность сертификата.</td>
+                </tr>
+              </table>
+
+              <!-- Примечание -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#fffbf0" style="background-color:#fffbf0; border:1px solid #f2e2b8; border-radius:6px; margin-top:22px;">
+                <tr>
+                  <td style="padding:14px 16px; font-family:'Segoe UI',Arial,sans-serif; font-size:13px; line-height:1.5; color:#605e5c;">
+                    После устранения причины запустите повторную рассылку вручную или дождитесь следующего запланированного цикла. До этого момента пользователи <b>не получат</b> предупреждения об истечении срока действия паролей.
+                  </td>
+                </tr>
+              </table>
+
+            </td>
+          </tr>
+
+          <!-- Подвал -->
+          <tr>
+            <td class="px" style="padding:16px 28px; border-top:1px solid #edebe9; font-family:'Segoe UI',Arial,sans-serif; font-size:12px; line-height:1.5; color:#605e5c;">
+              Автоматическое оповещение службы мониторинга. Время сбоя: <b>{{FailedAt}}</b>.
+            </td>
+          </tr>
+
+        </table>
+        <!--[if mso]></td></tr></table><![endif]-->
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

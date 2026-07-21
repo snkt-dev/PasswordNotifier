@@ -1,399 +1,163 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="format-detection" content="telephone=no, date=no, address=no, email=no">
 <title>Срок действия пароля истекает</title>
+<!--[if mso]>
+<noscript><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml></noscript>
+<![endif]-->
 <style>
-  :root {
-    --ms-blue: #0067b8;
-    --ms-blue-dark: #005a9e;
-    --ms-bg: #f3f2f1;
-    --ms-card: #ffffff;
-    --ms-text: #201f1e;
-    --ms-text-soft: #605e5c;
-    --ms-border: #edebe9;
-    --ms-warning: #ca5010;
-    --ms-warning-bg: #fdf6f3;
-    --ms-warning-border: #f4bfab;
-  }
-
-  * { box-sizing: border-box; }
-
-  body {
-    margin: 0;
-    padding: 24px;
-    background: var(--ms-bg);
-    font-family: "Segoe UI", "Segoe UI Web (West European)", -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", sans-serif;
-    color: var(--ms-text);
-    -webkit-font-smoothing: antialiased;
-    line-height: 1.5;
-  }
-
-  .card {
-    max-width: 640px;
-    margin: 0 auto;
-    background: var(--ms-card);
-    border: 1px solid var(--ms-border);
-    border-radius: 8px;
-    box-shadow: 0 6.4px 14.4px rgba(0,0,0,0.13), 0 1.2px 3.6px rgba(0,0,0,0.11);
-    overflow: hidden;
-  }
-
-  /* Верхняя цветная полоса — делает уведомление заметным */
-  .accent-bar {
-    height: 6px;
-    background: linear-gradient(90deg, var(--ms-warning) 0%, #eaa044 100%);
-  }
-
-  .header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 20px 28px 4px;
-  }
-
-  /* Логотип Windows из 4 квадратов */
-  .win-logo {
-    width: 28px;
-    height: 28px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1fr 1fr;
-    gap: 3px;
-    flex: none;
-  }
-  .win-logo span {
-    display: block;
-    background: var(--ms-blue);
-    border-radius: 1px;
-  }
-
-  .header-title {
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--ms-text-soft);
-    letter-spacing: .2px;
-  }
-
-  .body {
-    padding: 8px 28px 28px;
-  }
-
-  .shield {
-    width: 56px;
-    height: 56px;
-    margin: 8px 0 16px;
-    color: var(--ms-warning);
-  }
-
-  h1 {
-    font-size: 24px;
-    font-weight: 600;
-    margin: 0 0 8px;
-    line-height: 1.25;
-  }
-
-  .greeting {
-    font-size: 15px;
-    color: var(--ms-text);
-    margin: 0 0 20px;
-  }
-
-  /* Блок с датой — самый заметный элемент */
-  .expiry-callout {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    background: var(--ms-warning-bg);
-    border: 1px solid var(--ms-warning-border);
-    border-left: 4px solid var(--ms-warning);
-    border-radius: 6px;
-    padding: 16px 20px;
-    margin: 0 0 24px;
-  }
-  .expiry-callout .label {
-    font-size: 13px;
-    color: var(--ms-text-soft);
-    text-transform: uppercase;
-    letter-spacing: .6px;
-    margin: 0 0 2px;
-  }
-  .expiry-callout .date {
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--ms-warning);
-    margin: 0;
-  }
-  .expiry-callout .clock {
-    width: 32px;
-    height: 32px;
-    color: var(--ms-warning);
-    flex: none;
-  }
-
-  /* Плашка «осталось N дней» — цвет зависит от срочности */
-  .days-pill {
-    display: inline-block;
-    margin-top: 8px;
-    padding: 3px 12px;
-    border-radius: 999px;
-    font-size: 13px;
-    font-weight: 600;
-    line-height: 1.6;
-    background: #fbe4d5;
-    color: #8a3707;
-  }
-  .days-pill.urgent {
-    background: #fde7e9;
-    color: #a4262c;
-  }
-  .days-pill.expired {
-    background: #605e5c;
-    color: #ffffff;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    .days-pill { background: #5a3a25; color: #f6c9ab; }
-    .days-pill.urgent { background: #5a2327; color: #f4b9bd; }
-    .days-pill.expired { background: #797775; color: #ffffff; }
-  }
-
-  .meta {
-    font-size: 14px;
-    color: var(--ms-text-soft);
-    margin: 0 0 24px;
-  }
-  .meta b { color: var(--ms-text); font-weight: 600; }
-
-  h2 {
-    font-size: 16px;
-    font-weight: 600;
-    margin: 0 0 14px;
-  }
-
-  ol.steps {
-    margin: 0 0 8px;
-    padding: 0;
-    list-style: none;
-    counter-reset: step;
-  }
-  ol.steps li {
-    position: relative;
-    padding: 0 0 16px 44px;
-    counter-increment: step;
-    font-size: 15px;
-  }
-  ol.steps li:last-child { padding-bottom: 0; }
-  ol.steps li::before {
-    content: counter(step);
-    position: absolute;
-    left: 0;
-    top: -2px;
-    width: 28px;
-    height: 28px;
-    background: var(--ms-blue);
-    color: #fff;
-    border-radius: 50%;
-    font-size: 14px;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  /* Клавиши в стиле keyboard shortcut */
-  .keys {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    vertical-align: middle;
-    white-space: nowrap;
-  }
-  kbd {
-    display: inline-block;
-    background: #faf9f8;
-    border: 1px solid #c8c6c4;
-    border-bottom-width: 2px;
-    border-radius: 4px;
-    padding: 2px 8px;
-    font-family: "Segoe UI", sans-serif;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--ms-text);
-    box-shadow: 0 1px 0 rgba(0,0,0,0.04);
-  }
-  .keys .plus { color: var(--ms-text-soft); font-weight: 600; }
-
-  .tip {
-    display: flex;
-    gap: 10px;
-    background: #f3f9fd;
-    border: 1px solid #cfe4f6;
-    border-radius: 6px;
-    padding: 14px 16px;
-    margin: 20px 0 0;
-    font-size: 13.5px;
-    color: var(--ms-text-soft);
-  }
-  .tip svg { width: 18px; height: 18px; flex: none; color: var(--ms-blue); margin-top: 1px; }
-
-  .footer {
-    border-top: 1px solid var(--ms-border);
-    padding: 18px 28px;
-    font-size: 12px;
-    color: var(--ms-text-soft);
-  }
-  .footer p { margin: 0 0 4px; }
-
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --ms-bg: #1b1a19;
-      --ms-card: #252423;
-      --ms-text: #f3f2f1;
-      --ms-text-soft: #c8c6c4;
-      --ms-border: #3b3a39;
-      --ms-warning-bg: #3a2a20;
-      --ms-warning-border: #7a4a2c;
-    }
-    kbd { background: #323130; border-color: #605e5c; }
-    .tip { background: #1f2b33; border-color: #34506180; }
+  /* Правила для клиентов, понимающих <style> и @media.
+     Outlook (Word) их игнорирует — базовый вид задан инлайн-стилями и таблицами. */
+  body, table, td, a { -webkit-text-size-adjust:100%; -ms-text-size-adjust:100%; }
+  table, td { mso-table-lspace:0pt; mso-table-rspace:0pt; }
+  body { margin:0; padding:0; width:100% !important; }
+  a { color:#0067b8; }
+  @media only screen and (max-width:600px) {
+    .container { width:100% !important; }
+    .outer { padding:12px 8px !important; }
+    .px { padding-left:16px !important; padding-right:16px !important; }
+    .body-pad { padding-top:12px !important; padding-bottom:20px !important; }
+    .h1 { font-size:20px !important; }
+    .date { font-size:18px !important; }
+    .step-txt { font-size:14px !important; }
   }
 </style>
+</head>
+<body style="margin:0; padding:0; background-color:#f3f2f1;">
+  <div style="display:none; max-height:0; overflow:hidden; opacity:0; mso-hide:all;">Ваш пароль Windows скоро истекает — смените его заранее через Ctrl+Alt+Delete.</div>
 
-<div class="card">
-  <div class="accent-bar"></div>
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f3f2f1" style="background-color:#f3f2f1;">
+    <tr>
+      <td class="outer" align="center" style="padding:24px 12px;">
+        <!--[if mso]><table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0"><tr><td><![endif]-->
+        <table role="presentation" class="container" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px; max-width:600px; background-color:#ffffff; border:1px solid #edebe9; border-radius:8px;">
 
-  <div class="header">
-    <div class="win-logo" aria-hidden="true">
-      <span></span><span></span><span></span><span></span>
-    </div>
-    <div class="header-title">Безопасность Windows</div>
-  </div>
+          <!-- Акцентная полоса -->
+          <tr>
+            <td height="6" bgcolor="#ca5010" style="height:6px; line-height:6px; font-size:0;">&nbsp;</td>
+          </tr>
 
-  <div class="body">
-    <svg class="shield" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <path d="M12 2L4 5v6c0 5 3.4 8.9 8 11 4.6-2.1 8-6 8-11V5l-8-3z" fill="currentColor" opacity="0.14"/>
-      <path d="M12 2L4 5v6c0 5 3.4 8.9 8 11 4.6-2.1 8-6 8-11V5l-8-3z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
-      <path d="M12 8v4m0 3h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-    </svg>
+          <!-- Шапка -->
+          <tr>
+            <td class="px" style="padding:18px 28px 4px 28px;">
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td valign="middle" style="padding-right:12px;">
+                    <!-- Логотип Windows: 4 квадрата таблицей -->
+                    <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                      <tr>
+                        <td width="12" height="12" bgcolor="#0067b8" style="font-size:0; line-height:0;">&nbsp;</td>
+                        <td width="3" style="font-size:0; line-height:0;">&nbsp;</td>
+                        <td width="12" height="12" bgcolor="#0067b8" style="font-size:0; line-height:0;">&nbsp;</td>
+                      </tr>
+                      <tr><td colspan="3" height="3" style="font-size:0; line-height:0;">&nbsp;</td></tr>
+                      <tr>
+                        <td width="12" height="12" bgcolor="#0067b8" style="font-size:0; line-height:0;">&nbsp;</td>
+                        <td width="3" style="font-size:0; line-height:0;">&nbsp;</td>
+                        <td width="12" height="12" bgcolor="#0067b8" style="font-size:0; line-height:0;">&nbsp;</td>
+                      </tr>
+                    </table>
+                  </td>
+                  <td valign="middle" style="font-family:'Segoe UI',Arial,sans-serif; font-size:14px; font-weight:bold; color:#605e5c;">Безопасность Windows</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
 
-    <h1>Срок действия пароля скоро истекает</h1>
-    <p class="greeting">Здравствуйте, <b>{{Name}}</b>!</p>
+          <!-- Тело -->
+          <tr>
+            <td class="px body-pad" style="padding:14px 28px 28px 28px; font-family:'Segoe UI',Arial,sans-serif; color:#201f1e;">
 
-    <div class="expiry-callout">
-      <svg class="clock" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/>
-        <path d="M12 7v5l3.5 2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      <div>
-        <p class="label">Пароль действителен до</p>
-        <p class="date">{{PasswordExpiryDate}}</p>
-        <span class="days-pill" id="daysPill" hidden></span>
-      </div>
-    </div>
+              <h1 class="h1" style="margin:0 0 8px 0; font-size:24px; line-height:1.25; font-weight:bold; color:#201f1e;">Срок действия пароля скоро истекает</h1>
+              <p style="margin:0 0 18px 0; font-size:15px; line-height:1.5; color:#201f1e;">Здравствуйте, <b>{{name}}</b>!</p>
 
-    <p class="meta">
-      Учётная запись: <b>{{Name}}</b> &nbsp;•&nbsp; Домен: <b>{{Domain}}</b>
-    </p>
+              <!-- Блок с датой -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#fdf6f3" style="background-color:#fdf6f3; border:1px solid #f4bfab; border-radius:6px;">
+                <tr>
+                  <td width="4" bgcolor="#ca5010" style="width:4px; font-size:0; line-height:0;">&nbsp;</td>
+                  <td style="padding:14px 18px;">
+                    <p style="margin:0 0 2px 0; font-family:'Segoe UI',Arial,sans-serif; font-size:12px; letter-spacing:.6px; text-transform:uppercase; color:#605e5c;">Пароль действителен до</p>
+                    <p class="date" style="margin:0 0 10px 0; font-family:'Segoe UI',Arial,sans-serif; font-size:20px; font-weight:bold; color:#ca5010;">{{passwordExpiryDate}}</p>
+                    <!-- Плашка «осталось» (значение подставляет движок рассылки) -->
+                    <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="left">
+                      <tr>
+                        <td bgcolor="#fde7e9" style="padding:4px 12px; border-radius:12px; font-family:'Segoe UI',Arial,sans-serif; font-size:13px; font-weight:bold; color:#a4262c;">Осталось: {{daysToExpire}} Дн.</td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
 
-    <p class="greeting">
-      Чтобы не потерять доступ к рабочим приложениям, почте и общим ресурсам,
-      смените пароль <b>до указанной даты</b>. Сделать это можно прямо на рабочем
-      компьютере за несколько шагов.
-    </p>
+              <p style="margin:16px 0 18px 0; font-family:'Segoe UI',Arial,sans-serif; font-size:14px; line-height:1.5; color:#605e5c;">Учётная запись: <b style="color:#201f1e;">{{name}}</b> &nbsp;&bull;&nbsp; Домен: <b style="color:#201f1e;">{{domain}}</b></p>
 
-    <h2>Как сменить пароль</h2>
-    <ol class="steps">
-      <li>
-        Нажмите сочетание клавиш
-        <span class="keys">
-          <kbd>Ctrl</kbd><span class="plus">+</span><kbd>Alt</kbd><span class="plus">+</span><kbd>Delete</kbd>
-        </span>
-      </li>
-      <li>На появившемся синем экране выберите пункт <b>«Сменить пароль»</b>.</li>
-      <li>Введите <b>текущий пароль</b>, затем дважды — <b>новый пароль</b>.</li>
-      <li>Нажмите <b>Enter</b> (стрелку) и дождитесь подтверждения об успешной смене.</li>
-    </ol>
+              <p style="margin:0 0 20px 0; font-size:15px; line-height:1.5; color:#201f1e;">Чтобы не потерять доступ к рабочим приложениям, почте и общим ресурсам, смените пароль <b>до указанной даты</b>. Сделать это можно прямо на рабочем компьютере за несколько шагов.</p>
 
-    <div class="tip">
-      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/>
-        <path d="M12 11v5m0-8h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-      </svg>
-      <div>
-        Новый пароль должен соответствовать политике безопасности домена
-        <b>{{Domain}}</b>: не менее 8 символов, с заглавными и строчными буквами,
-        цифрами и специальными символами. Не используйте прежние пароли.
-      </div>
-    </div>
-  </div>
+              <p style="margin:0 0 14px 0; font-size:16px; font-weight:bold; color:#201f1e;">Как сменить пароль</p>
 
-  <div class="footer">
-    <p>Это автоматическое уведомление службы безопасности домена <b>{{Domain}}</b>.</p>
-    <p>Отвечать на него не нужно. По вопросам обращайтесь в службу технической поддержки.</p>
-  </div>
-</div>
+              <!-- Шаги -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="font-family:'Segoe UI',Arial,sans-serif;">
+                <tr>
+                  <td width="28" valign="top" style="padding:0 12px 14px 0;">
+                    <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
+                      <td width="28" height="28" align="center" valign="middle" bgcolor="#0067b8" style="border-radius:14px; font-size:14px; font-weight:bold; color:#ffffff; line-height:28px;">1</td>
+                    </tr></table>
+                  </td>
+                  <td class="step-txt" valign="middle" style="padding:0 0 14px 0; font-size:15px; line-height:1.45; color:#201f1e;">Нажмите сочетание клавиш <b>Ctrl</b> + <b>Alt</b> + <b>Delete</b></td>
+                </tr>
+                <tr>
+                  <td width="28" valign="top" style="padding:0 12px 14px 0;">
+                    <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
+                      <td width="28" height="28" align="center" valign="middle" bgcolor="#0067b8" style="border-radius:14px; font-size:14px; font-weight:bold; color:#ffffff; line-height:28px;">2</td>
+                    </tr></table>
+                  </td>
+                  <td class="step-txt" valign="middle" style="padding:0 0 14px 0; font-size:15px; line-height:1.45; color:#201f1e;">На появившемся синем экране выберите пункт <b>«Сменить пароль»</b>.</td>
+                </tr>
+                <tr>
+                  <td width="28" valign="top" style="padding:0 12px 14px 0;">
+                    <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
+                      <td width="28" height="28" align="center" valign="middle" bgcolor="#0067b8" style="border-radius:14px; font-size:14px; font-weight:bold; color:#ffffff; line-height:28px;">3</td>
+                    </tr></table>
+                  </td>
+                  <td class="step-txt" valign="middle" style="padding:0 0 14px 0; font-size:15px; line-height:1.45; color:#201f1e;">Введите <b>текущий пароль</b>, затем дважды — <b>новый пароль</b>.</td>
+                </tr>
+                <tr>
+                  <td width="28" valign="top" style="padding:0 12px 0 0;">
+                    <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
+                      <td width="28" height="28" align="center" valign="middle" bgcolor="#0067b8" style="border-radius:14px; font-size:14px; font-weight:bold; color:#ffffff; line-height:28px;">4</td>
+                    </tr></table>
+                  </td>
+                  <td class="step-txt" valign="middle" style="font-size:15px; line-height:1.45; color:#201f1e;">Нажмите <b>Enter</b> и дождитесь подтверждения об успешной смене.</td>
+                </tr>
+              </table>
 
-<script>
-(function () {
-  var RU_MONTHS = {
-    'январ': 0, 'феврал': 1, 'март': 2, 'апрел': 3, 'ма': 4, 'июн': 5,
-    'июл': 6, 'август': 7, 'сентябр': 8, 'октябр': 9, 'ноябр': 10, 'декабр': 11
-  };
+              <!-- Подсказка -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f3f9fd" style="background-color:#f3f9fd; border:1px solid #cfe4f6; border-radius:6px; margin-top:20px;">
+                <tr>
+                  <td style="padding:14px 16px; font-family:'Segoe UI',Arial,sans-serif; font-size:13px; line-height:1.5; color:#605e5c;">
+                    Новый пароль должен соответствовать политике безопасности домена <b>{{Domain}}</b>: не менее 8 символов, с заглавными и строчными буквами, цифрами и спецсимволами. Не используйте прежние пароли.
+                  </td>
+                </tr>
+              </table>
 
-  // Разбирает дату из разных форматов: ISO, ДД.ММ.ГГГГ, ДД/ММ/ГГГГ, «ДД месяц ГГГГ».
-  function parseExpiry(raw) {
-    if (!raw) return null;
-    var s = raw.trim();
-    if (!s || s.indexOf('{{') !== -1) return null; // плейсхолдер ещё не подставлен
+            </td>
+          </tr>
 
-    var m;
-    // 2026-07-24 или 2026-07-24 09:00
-    m = s.match(/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2}))?/);
-    if (m) return new Date(+m[1], +m[2] - 1, +m[3], +(m[4] || 0), +(m[5] || 0));
+          <!-- Подвал -->
+          <tr>
+            <td class="px" style="padding:18px 28px; border-top:1px solid #edebe9; font-family:'Segoe UI',Arial,sans-serif; font-size:12px; line-height:1.5; color:#605e5c;">
+              <p style="margin:0 0 4px 0;">Это автоматическое уведомление службы безопасности домена <b>{{Domain}}</b>.</p>
+              <p style="margin:0;">Отвечать на него не нужно. По вопросам обращайтесь в службу технической поддержки.</p>
+            </td>
+          </tr>
 
-    // 24.07.2026 или 24/07/2026 (при желании со временем)
-    m = s.match(/^(\d{1,2})[.\/](\d{1,2})[.\/](\d{4})(?:[ T](\d{2}):(\d{2}))?/);
-    if (m) return new Date(+m[3], +m[2] - 1, +m[1], +(m[4] || 0), +(m[5] || 0));
-
-    // 24 июля 2026
-    m = s.match(/^(\d{1,2})\s+([А-Яа-яё]+)\s+(\d{4})/);
-    if (m) {
-      var name = m[2].toLowerCase();
-      for (var key in RU_MONTHS) {
-        if (name.indexOf(key) === 0) return new Date(+m[3], RU_MONTHS[key], +m[1]);
-      }
-    }
-    return null;
-  }
-
-  // Склонение: 1 день, 2 дня, 5 дней
-  function plural(n, forms) {
-    var n10 = n % 10, n100 = n % 100;
-    if (n10 === 1 && n100 !== 11) return forms[0];
-    if (n10 >= 2 && n10 <= 4 && (n100 < 12 || n100 > 14)) return forms[1];
-    return forms[2];
-  }
-
-  function midnight(d) { return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
-
-  var dateEl = document.querySelector('.date');
-  var pill = document.getElementById('daysPill');
-  if (!dateEl || !pill) return;
-
-  var expiry = parseExpiry(dateEl.textContent);
-  if (!expiry || isNaN(expiry.getTime())) return; // не смогли разобрать — плашку не показываем
-
-  var days = Math.round((midnight(expiry) - midnight(new Date())) / 86400000);
-
-  if (days < 0) {
-    pill.textContent = 'Срок действия истёк';
-    pill.classList.add('expired');
-  } else if (days === 0) {
-    pill.textContent = 'Истекает сегодня';
-    pill.classList.add('urgent');
-  } else {
-    pill.textContent = 'Осталось ' + days + ' ' + plural(days, ['день', 'дня', 'дней']);
-    if (days <= 3) pill.classList.add('urgent');
-  }
-  pill.hidden = false;
-})();
-</script>
+        </table>
+        <!--[if mso]></td></tr></table><![endif]-->
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

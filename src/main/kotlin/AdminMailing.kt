@@ -27,7 +27,7 @@ private val adminHtmlTemplate by lazy {
     }
 }
 
-private val adminMailAddress = _adminMailAddress
+private val adminMailAddresses: List<String> = _adminMailAddresses
     ?: throw IllegalStateException("'--admin_mail_address' variable is not set")
 
 
@@ -50,12 +50,14 @@ fun generateExpiryUsersAdminReport(mailSession: Session, targetUsers: List<Map<S
     buf.append(footer)
 
     logger.debug { "Sending expiring users admin report..." }
-    sendMail(
-        mailSession,
-        adminMailAddress,
-        "Expiring users report",
-        buf.toString()
-    )
+    adminMailAddresses.forEach {
+        sendMail(
+            mailSession,
+            it,
+            "Expiring users report",
+            buf.toString()
+        )
+    }
     logger.debug { "Done" }
 }
 
@@ -68,21 +70,23 @@ fun generateErrorAdminReport(
     e: Exception
 ) {
     logger.debug { "Sending report to admin..." }
-    sendMail(
-        mailSession,
-        adminMailAddress,
-        "Password notifier service error",
-        createHtmlDoc(
-            adminHtmlTemplate as String,
-            mapOf(
-                "FailedAt" to LocalDateTime.now().toString(),
-                "ADHost" to adHost,
-                "ADPort" to adPort.toString(),
-                "ADUser" to adUser,
-                "Attempts" to attempt.toString(),
-                "ErrorMessage" to e.stackTraceToString()
+    adminMailAddresses.forEach {
+        sendMail(
+            mailSession,
+            it,
+            "Password notifier service error",
+            createHtmlDoc(
+                adminHtmlTemplate as String,
+                mapOf(
+                    "FailedAt" to LocalDateTime.now().toString(),
+                    "ADHost" to adHost,
+                    "ADPort" to adPort.toString(),
+                    "ADUser" to adUser,
+                    "Attempts" to attempt.toString(),
+                    "ErrorMessage" to e.stackTraceToString()
+                )
             )
         )
-    )
+    }
     logger.debug { "Admin report sent" }
 }
