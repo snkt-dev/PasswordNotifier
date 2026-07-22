@@ -25,6 +25,8 @@
     .rcell { display:block !important; width:100% !important; box-sizing:border-box !important; text-align:right !important; padding:10px 14px !important; font-size:14px !important; border-bottom:1px solid #edebe9 !important; white-space:normal !important; word-break:break-word !important; overflow-wrap:anywhere !important; }
     .rcell-last { border-bottom:none !important; }
     .rlabel { display:inline-block !important; float:left; max-width:45% !important; font-size:12px; font-weight:bold; text-transform:uppercase; letter-spacing:.5px; color:#605e5c; }
+    /* Логотип возвращаем только на телефоне (Outlook его не показывает) */
+    .logo-cell { display:table-cell !important; }
   }
 </style>
 </head>
@@ -45,20 +47,20 @@
             <td class="px" style="padding:18px 28px 4px 28px;">
               <table role="presentation" cellpadding="0" cellspacing="0" border="0">
                 <tr>
-                  <td valign="middle" style="padding-right:12px;">
-                    <table role="presentation" cellpadding="0" cellspacing="0" border="0">
-                      <tr>
-                        <td width="11" height="11" bgcolor="#0067b8" style="font-size:0; line-height:0;">&nbsp;</td>
-                        <td width="3" style="font-size:0; line-height:0;">&nbsp;</td>
-                        <td width="11" height="11" bgcolor="#0067b8" style="font-size:0; line-height:0;">&nbsp;</td>
-                      </tr>
-                      <tr><td colspan="3" height="3" style="font-size:0; line-height:0;">&nbsp;</td></tr>
-                      <tr>
-                        <td width="11" height="11" bgcolor="#0067b8" style="font-size:0; line-height:0;">&nbsp;</td>
-                        <td width="3" style="font-size:0; line-height:0;">&nbsp;</td>
-                        <td width="11" height="11" bgcolor="#0067b8" style="font-size:0; line-height:0;">&nbsp;</td>
-                      </tr>
-                    </table>
+                  <td class="logo-cell" valign="middle" style="padding-right:12px; display:none; mso-hide:all;">
+<!--                    <table role="presentation" cellpadding="0" cellspacing="0" border="0">-->
+<!--                      <tr>-->
+<!--                        <td width="11" height="11" bgcolor="#0067b8" style="font-size:0; line-height:0;">&nbsp;</td>-->
+<!--                        <td width="3" style="font-size:0; line-height:0;">&nbsp;</td>-->
+<!--                        <td width="11" height="11" bgcolor="#0067b8" style="font-size:0; line-height:0;">&nbsp;</td>-->
+<!--                      </tr>-->
+<!--                      <tr><td colspan="3" height="3" style="font-size:0; line-height:0;">&nbsp;</td></tr>-->
+<!--                      <tr>-->
+<!--                        <td width="11" height="11" bgcolor="#0067b8" style="font-size:0; line-height:0;">&nbsp;</td>-->
+<!--                        <td width="3" style="font-size:0; line-height:0;">&nbsp;</td>-->
+<!--                        <td width="11" height="11" bgcolor="#0067b8" style="font-size:0; line-height:0;">&nbsp;</td>-->
+<!--                      </tr>-->
+<!--                    </table>-->
                   </td>
                   <td valign="middle" style="font-family:'Segoe UI',Arial,sans-serif; font-size:14px; font-weight:bold; color:#605e5c;">Центр администрирования &middot; Ежедневный отчёт</td>
                 </tr>
@@ -89,9 +91,9 @@
                 <!--ROW:START-->
                 <tr class="rrow">
                   <td class="rcell" valign="middle" style="padding:12px 16px; font-size:14px; font-weight:bold; color:#201f1e; border-bottom:1px solid #edebe9;"><span class="rlabel" style="display:none;">Пользователь</span>{{name}}</td>
-                  <td class="rcell" valign="middle" style="padding:12px 16px; font-size:14px; color:#201f1e; border-bottom:1px solid #edebe9; word-break:break-all;"><span class="rlabel" style="display:none;">Эл. почта</span><a href="mailto:{{UserMail}}" style="color:#0067b8; text-decoration:none;">{{email}}</a></td>
+                  <td class="rcell" valign="middle" style="padding:12px 16px; font-size:14px; color:#201f1e; border-bottom:1px solid #edebe9; word-break:break-all;"><span class="rlabel" style="display:none;">Эл. почта</span><a href="mailto:{{email}}" style="color:#0067b8; text-decoration:none;">{{email}}</a></td>
                   <td class="rcell" valign="middle" style="padding:12px 16px; font-size:14px; color:#201f1e; border-bottom:1px solid #edebe9; white-space:nowrap;"><span class="rlabel" style="display:none;">Истекает</span>{{passwordExpiryDate}}</td>
-                  <td class="rcell rcell-last" valign="middle" style="padding:12px 16px; font-size:14px; font-weight:bold; color:#a4262c; border-bottom:1px solid #edebe9; white-space:nowrap;"><span class="rlabel" style="display:none;">Осталось</span>{{daysToExpire}} Дн.</td>
+                  <td class="rcell rcell-last" valign="middle" style="padding:12px 16px; font-size:14px; font-weight:bold; color:#a4262c; border-bottom:1px solid #edebe9; white-space:nowrap;"><span class="rlabel" style="display:none;">Осталось</span>{{daysToExpire}} дн.</td>
                 </tr>
                 <!--ROW:END-->
 

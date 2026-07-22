@@ -24,6 +24,11 @@
     .h1 { font-size:20px !important; }
     .date { font-size:18px !important; }
     .step-txt { font-size:14px !important; }
+    /* Декор возвращаем только на телефоне (Outlook его не показывает) */
+    .logo-cell { display:table-cell !important; }
+    .stripe-cell { display:table-cell !important; }
+    .stepnum { background:#0067b8 !important; color:#ffffff !important; }
+    .tipbox { background-color:#f3f9fd !important; border-color:#cfe4f6 !important; }
   }
 </style>
 </head>
@@ -46,21 +51,21 @@
             <td class="px" style="padding:18px 28px 4px 28px;">
               <table role="presentation" cellpadding="0" cellspacing="0" border="0">
                 <tr>
-                  <td valign="middle" style="padding-right:12px;">
-                    <!-- Логотип Windows: 4 квадрата таблицей -->
-                    <table role="presentation" cellpadding="0" cellspacing="0" border="0">
-                      <tr>
-                        <td width="12" height="12" bgcolor="#0067b8" style="font-size:0; line-height:0;">&nbsp;</td>
-                        <td width="3" style="font-size:0; line-height:0;">&nbsp;</td>
-                        <td width="12" height="12" bgcolor="#0067b8" style="font-size:0; line-height:0;">&nbsp;</td>
-                      </tr>
-                      <tr><td colspan="3" height="3" style="font-size:0; line-height:0;">&nbsp;</td></tr>
-                      <tr>
-                        <td width="12" height="12" bgcolor="#0067b8" style="font-size:0; line-height:0;">&nbsp;</td>
-                        <td width="3" style="font-size:0; line-height:0;">&nbsp;</td>
-                        <td width="12" height="12" bgcolor="#0067b8" style="font-size:0; line-height:0;">&nbsp;</td>
-                      </tr>
-                    </table>
+                  <td class="logo-cell" valign="middle" style="padding-right:12px; display:none; mso-hide:all;">
+                    <!-- Логотип Windows: 4 квадрата (только на телефоне; в Outlook скрыт) -->
+<!--                    <table role="presentation" cellpadding="0" cellspacing="0" border="0">-->
+<!--                      <tr>-->
+<!--                        <td width="12" height="12" bgcolor="#0067b8" style="font-size:0; line-height:0;">&nbsp;</td>-->
+<!--                        <td width="3" style="font-size:0; line-height:0;">&nbsp;</td>-->
+<!--                        <td width="12" height="12" bgcolor="#0067b8" style="font-size:0; line-height:0;">&nbsp;</td>-->
+<!--                      </tr>-->
+<!--                      <tr><td colspan="3" height="3" style="font-size:0; line-height:0;">&nbsp;</td></tr>-->
+<!--                      <tr>-->
+<!--                        <td width="12" height="12" bgcolor="#0067b8" style="font-size:0; line-height:0;">&nbsp;</td>-->
+<!--                        <td width="3" style="font-size:0; line-height:0;">&nbsp;</td>-->
+<!--                        <td width="12" height="12" bgcolor="#0067b8" style="font-size:0; line-height:0;">&nbsp;</td>-->
+<!--                      </tr>-->
+<!--                    </table>-->
                   </td>
                   <td valign="middle" style="font-family:'Segoe UI',Arial,sans-serif; font-size:14px; font-weight:bold; color:#605e5c;">Безопасность Windows</td>
                 </tr>
@@ -78,21 +83,19 @@
               <!-- Блок с датой -->
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#fdf6f3" style="background-color:#fdf6f3; border:1px solid #f4bfab; border-radius:6px;">
                 <tr>
-                  <td width="4" bgcolor="#ca5010" style="width:4px; font-size:0; line-height:0;">&nbsp;</td>
+                  <td class="stripe-cell" width="4" bgcolor="#ca5010" style="width:4px; font-size:0; line-height:0; display:none; mso-hide:all;">&nbsp;</td>
                   <td style="padding:14px 18px;">
                     <p style="margin:0 0 2px 0; font-family:'Segoe UI',Arial,sans-serif; font-size:12px; letter-spacing:.6px; text-transform:uppercase; color:#605e5c;">Пароль действителен до</p>
                     <p class="date" style="margin:0 0 10px 0; font-family:'Segoe UI',Arial,sans-serif; font-size:20px; font-weight:bold; color:#ca5010;">{{passwordExpiryDate}}</p>
                     <!-- Плашка «осталось» (значение подставляет движок рассылки) -->
                     <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="left">
                       <tr>
-                        <td bgcolor="#fde7e9" style="padding:4px 12px; border-radius:12px; font-family:'Segoe UI',Arial,sans-serif; font-size:13px; font-weight:bold; color:#a4262c;">Осталось: {{daysToExpire}} Дн.</td>
+                        <td bgcolor="#fde7e9" style="padding:4px 12px; border-radius:12px; font-family:'Segoe UI',Arial,sans-serif; font-size:13px; font-weight:bold; color:#a4262c;">Осталось: {{daysToExpire}} дн.</td>
                       </tr>
                     </table>
                   </td>
                 </tr>
               </table>
-
-              <p style="margin:16px 0 18px 0; font-family:'Segoe UI',Arial,sans-serif; font-size:14px; line-height:1.5; color:#605e5c;">Учётная запись: <b style="color:#201f1e;">{{name}}</b> &nbsp;&bull;&nbsp; Домен: <b style="color:#201f1e;">{{domain}}</b></p>
 
               <p style="margin:0 0 20px 0; font-size:15px; line-height:1.5; color:#201f1e;">Чтобы не потерять доступ к рабочим приложениям, почте и общим ресурсам, смените пароль <b>до указанной даты</b>. Сделать это можно прямо на рабочем компьютере за несколько шагов.</p>
 
@@ -103,7 +106,7 @@
                 <tr>
                   <td width="28" valign="top" style="padding:0 12px 14px 0;">
                     <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
-                      <td width="28" height="28" align="center" valign="middle" bgcolor="#0067b8" style="border-radius:14px; font-size:14px; font-weight:bold; color:#ffffff; line-height:28px;">1</td>
+                      <td class="stepnum" width="28" height="28" align="center" valign="middle" style="border-radius:14px; font-size:14px; font-weight:bold; color:#0067b8; line-height:28px;">1</td>
                     </tr></table>
                   </td>
                   <td class="step-txt" valign="middle" style="padding:0 0 14px 0; font-size:15px; line-height:1.45; color:#201f1e;">Нажмите сочетание клавиш <b>Ctrl</b> + <b>Alt</b> + <b>Delete</b></td>
@@ -111,7 +114,7 @@
                 <tr>
                   <td width="28" valign="top" style="padding:0 12px 14px 0;">
                     <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
-                      <td width="28" height="28" align="center" valign="middle" bgcolor="#0067b8" style="border-radius:14px; font-size:14px; font-weight:bold; color:#ffffff; line-height:28px;">2</td>
+                      <td class="stepnum" width="28" height="28" align="center" valign="middle" style="border-radius:14px; font-size:14px; font-weight:bold; color:#0067b8; line-height:28px;">2</td>
                     </tr></table>
                   </td>
                   <td class="step-txt" valign="middle" style="padding:0 0 14px 0; font-size:15px; line-height:1.45; color:#201f1e;">На появившемся синем экране выберите пункт <b>«Сменить пароль»</b>.</td>
@@ -119,7 +122,7 @@
                 <tr>
                   <td width="28" valign="top" style="padding:0 12px 14px 0;">
                     <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
-                      <td width="28" height="28" align="center" valign="middle" bgcolor="#0067b8" style="border-radius:14px; font-size:14px; font-weight:bold; color:#ffffff; line-height:28px;">3</td>
+                      <td class="stepnum" width="28" height="28" align="center" valign="middle" style="border-radius:14px; font-size:14px; font-weight:bold; color:#0067b8; line-height:28px;">3</td>
                     </tr></table>
                   </td>
                   <td class="step-txt" valign="middle" style="padding:0 0 14px 0; font-size:15px; line-height:1.45; color:#201f1e;">Введите <b>текущий пароль</b>, затем дважды — <b>новый пароль</b>.</td>
@@ -127,7 +130,7 @@
                 <tr>
                   <td width="28" valign="top" style="padding:0 12px 0 0;">
                     <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
-                      <td width="28" height="28" align="center" valign="middle" bgcolor="#0067b8" style="border-radius:14px; font-size:14px; font-weight:bold; color:#ffffff; line-height:28px;">4</td>
+                      <td class="stepnum" width="28" height="28" align="center" valign="middle" style="border-radius:14px; font-size:14px; font-weight:bold; color:#0067b8; line-height:28px;">4</td>
                     </tr></table>
                   </td>
                   <td class="step-txt" valign="middle" style="font-size:15px; line-height:1.45; color:#201f1e;">Нажмите <b>Enter</b> и дождитесь подтверждения об успешной смене.</td>
@@ -135,10 +138,10 @@
               </table>
 
               <!-- Подсказка -->
-              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f3f9fd" style="background-color:#f3f9fd; border:1px solid #cfe4f6; border-radius:6px; margin-top:20px;">
+              <table class="tipbox" role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#faf9f8" style="background-color:#faf9f8; border:1px solid #edebe9; border-radius:6px; margin-top:20px;">
                 <tr>
                   <td style="padding:14px 16px; font-family:'Segoe UI',Arial,sans-serif; font-size:13px; line-height:1.5; color:#605e5c;">
-                    Новый пароль должен соответствовать политике безопасности домена <b>{{domain}}</b>: не менее 8 символов, с заглавными и строчными буквами, цифрами и спецсимволами. Не используйте прежние пароли.
+                    Новый пароль должен содержать <b>не менее 12 символов</b>: латинские буквы в верхнем и нижнем регистре, цифры и специальные символы. Не используйте прежние пароли.
                   </td>
                 </tr>
               </table>
@@ -149,7 +152,7 @@
           <!-- Подвал -->
           <tr>
             <td class="px" style="padding:18px 28px; border-top:1px solid #edebe9; font-family:'Segoe UI',Arial,sans-serif; font-size:12px; line-height:1.5; color:#605e5c;">
-              <p style="margin:0 0 4px 0;">Это автоматическое уведомление службы безопасности домена <b>{{domain}}</b>.</p>
+              <p style="margin:0 0 4px 0;">Это автоматическое уведомление службы информационной безопасности.</p>
               <p style="margin:0;">Отвечать на него не нужно. По вопросам обращайтесь в службу технической поддержки.</p>
             </td>
           </tr>

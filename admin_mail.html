@@ -22,6 +22,8 @@
     .kv-k { display:block !important; width:100% !important; padding-bottom:0 !important; border-bottom:none !important; }
     .kv-v { display:block !important; width:100% !important; padding-top:2px !important; }
     .errbody { font-size:12px !important; }
+    /* Логотип возвращаем только на телефоне (Outlook его не показывает) */
+    .logo-cell { display:table-cell !important; }
   }
 </style>
 </head>
@@ -42,20 +44,20 @@
             <td class="px" style="padding:18px 28px 6px 28px;">
               <table role="presentation" cellpadding="0" cellspacing="0" border="0">
                 <tr>
-                  <td valign="middle" style="padding-right:12px;">
-                    <table role="presentation" cellpadding="0" cellspacing="0" border="0">
-                      <tr>
-                        <td width="11" height="11" bgcolor="#0067b8" style="font-size:0; line-height:0;">&nbsp;</td>
-                        <td width="3" style="font-size:0; line-height:0;">&nbsp;</td>
-                        <td width="11" height="11" bgcolor="#0067b8" style="font-size:0; line-height:0;">&nbsp;</td>
-                      </tr>
-                      <tr><td colspan="3" height="3" style="font-size:0; line-height:0;">&nbsp;</td></tr>
-                      <tr>
-                        <td width="11" height="11" bgcolor="#0067b8" style="font-size:0; line-height:0;">&nbsp;</td>
-                        <td width="3" style="font-size:0; line-height:0;">&nbsp;</td>
-                        <td width="11" height="11" bgcolor="#0067b8" style="font-size:0; line-height:0;">&nbsp;</td>
-                      </tr>
-                    </table>
+                  <td class="logo-cell" valign="middle" style="padding-right:12px; display:none; mso-hide:all;">
+<!--                    <table role="presentation" cellpadding="0" cellspacing="0" border="0">-->
+<!--                      <tr>-->
+<!--                        <td width="11" height="11" bgcolor="#0067b8" style="font-size:0; line-height:0;">&nbsp;</td>-->
+<!--                        <td width="3" style="font-size:0; line-height:0;">&nbsp;</td>-->
+<!--                        <td width="11" height="11" bgcolor="#0067b8" style="font-size:0; line-height:0;">&nbsp;</td>-->
+<!--                      </tr>-->
+<!--                      <tr><td colspan="3" height="3" style="font-size:0; line-height:0;">&nbsp;</td></tr>-->
+<!--                      <tr>-->
+<!--                        <td width="11" height="11" bgcolor="#0067b8" style="font-size:0; line-height:0;">&nbsp;</td>-->
+<!--                        <td width="3" style="font-size:0; line-height:0;">&nbsp;</td>-->
+<!--                        <td width="11" height="11" bgcolor="#0067b8" style="font-size:0; line-height:0;">&nbsp;</td>-->
+<!--                      </tr>-->
+<!--                    </table>-->
                   </td>
                   <td valign="middle" style="font-family:'Segoe UI',Arial,sans-serif; font-size:14px; font-weight:bold; color:#605e5c;">Центр администрирования &middot; Мониторинг рассылки</td>
                 </tr>
@@ -159,7 +161,7 @@
           <!-- Подвал -->
           <tr>
             <td class="px" style="padding:16px 28px; border-top:1px solid #edebe9; font-family:'Segoe UI',Arial,sans-serif; font-size:12px; line-height:1.5; color:#605e5c;">
-              Автоматическое оповещение службы мониторинга.
+              Автоматическое оповещение службы мониторинга. Время сбоя: <b>{{FailedAt}}</b>.
             </td>
           </tr>
 
