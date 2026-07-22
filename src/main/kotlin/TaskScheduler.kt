@@ -5,6 +5,7 @@ import com.cronutils.model.definition.CronDefinitionBuilder
 import com.cronutils.model.time.ExecutionTime
 import com.cronutils.parser.CronParser
 import java.time.Duration
+import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
@@ -17,7 +18,7 @@ private val cron = cronParser.parse("$cronExpression * * *")
 private val executionTime = ExecutionTime.forCron(cron)
 
 fun scheduleTask(executor: ScheduledExecutorService) {
-    val now = ZonedDateTime.now()
+    val now = ZonedDateTime.now(ZoneOffset.UTC)
     val next = executionTime.nextExecution(now).get()
     val delay = Duration.between(now, next).seconds
 

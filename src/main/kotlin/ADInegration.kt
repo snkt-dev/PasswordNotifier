@@ -23,6 +23,10 @@ private val adExcludedGroup: String? = _adExGroup.also {
     if (it == null) logger.warn { "'--ad_ex_group' variable is not set. Example: '--ad_ex_group !ADMINS'" }
 }
 
+private val adIncludedGroup: String? = _adInGroup.also {
+    if (it == null) logger.warn { "'--ad_in_group' variable is not set. Example: '--ad_in_group !ADMINS'" }
+}
+
 private val adUserPath = _adUserPath
     ?: throw IllegalStateException("'--ad_user_path' variable is not set. Example: '--ad_user_path CN=Users,DC=snkt,DC=dev'")
 
@@ -55,12 +59,27 @@ fun fetchAllUsers(): List<Map<String, String>> {
         }
     }
 
+    var groupFilter = ""
+    if (adIncludedGroup != null && adExcludedGroup != null) {
+        val e = IllegalStateException("You cannot use '--ad_in_group' and '--ad_ex_group' at the same time. Choose only one option.")
+        generateErrorAdminReport(
+            initMailSession(),
+            adHost,
+            adPort,
+            adUser,
+            1,
+            e)
+        throw e
+    } else if (adIncludedGroup != null) {
+        groupFilter = "(memberOf=$adIncludedGroup)"
+    } else if (adExcludedGroup != null) {
+        groupFilter = "(!(memberOf=$adExcludedGroup))"
+    }
+
     val search = SearchRequest(
         adUserPath,
         SearchScope.SUB,
-        Filter.create("(&(objectClass=user)(objectCategory=person)(!(userAccountControl:1.2.840.113556.1.4.803:=2))(!(userAccountControl:1.2.840.113556.1.4.803:=65536))${
-            if (adExcludedGroup != null) "(!(memberOf=$adExcludedGroup))" else ""
-        })"),
+        Filter.create("(&(objectClass=user)(objectCategory=person)(!(userAccountControl:1.2.840.113556.1.4.803:=2))(!(userAccountControl:1.2.840.113556.1.4.803:=65536))$groupFilter)"),
         "displayName", "mail", "msDS-UserPasswordExpiryTimeComputed"
     )
 

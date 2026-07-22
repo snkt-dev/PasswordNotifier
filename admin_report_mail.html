@@ -21,10 +21,10 @@
     /* Таблица превращается в карточки «поле: значение» */
     .rtable { border:none !important; }
     .rhead { display:none !important; }
-    .rrow { display:block !important; width:100% !important; border:1px solid #edebe9 !important; border-radius:8px !important; margin-bottom:12px !important; }
-    .rcell { display:block !important; width:100% !important; text-align:right !important; padding:10px 14px !important; font-size:14px !important; border-bottom:1px solid #edebe9 !important; white-space:normal !important; }
+    .rrow { display:block !important; width:100% !important; box-sizing:border-box !important; border:1px solid #edebe9 !important; border-radius:8px !important; margin-bottom:12px !important; }
+    .rcell { display:block !important; width:100% !important; box-sizing:border-box !important; text-align:right !important; padding:10px 14px !important; font-size:14px !important; border-bottom:1px solid #edebe9 !important; white-space:normal !important; word-break:break-word !important; overflow-wrap:anywhere !important; }
     .rcell-last { border-bottom:none !important; }
-    .rlabel { display:inline-block !important; float:left; font-size:12px; font-weight:bold; text-transform:uppercase; letter-spacing:.5px; color:#605e5c; }
+    .rlabel { display:inline-block !important; float:left; max-width:45% !important; font-size:12px; font-weight:bold; text-transform:uppercase; letter-spacing:.5px; color:#605e5c; }
   }
 </style>
 </head>
@@ -89,7 +89,7 @@
                 <!--ROW:START-->
                 <tr class="rrow">
                   <td class="rcell" valign="middle" style="padding:12px 16px; font-size:14px; font-weight:bold; color:#201f1e; border-bottom:1px solid #edebe9;"><span class="rlabel" style="display:none;">Пользователь</span>{{name}}</td>
-                  <td class="rcell" valign="middle" style="padding:12px 16px; font-size:14px; color:#201f1e; border-bottom:1px solid #edebe9; word-break:break-all;"><span class="rlabel" style="display:none;">Эл. почта</span><a href="mailto:{{email}}" style="color:#0067b8; text-decoration:none;">{{email}}</a></td>
+                  <td class="rcell" valign="middle" style="padding:12px 16px; font-size:14px; color:#201f1e; border-bottom:1px solid #edebe9; word-break:break-all;"><span class="rlabel" style="display:none;">Эл. почта</span><a href="mailto:{{UserMail}}" style="color:#0067b8; text-decoration:none;">{{email}}</a></td>
                   <td class="rcell" valign="middle" style="padding:12px 16px; font-size:14px; color:#201f1e; border-bottom:1px solid #edebe9; white-space:nowrap;"><span class="rlabel" style="display:none;">Истекает</span>{{passwordExpiryDate}}</td>
                   <td class="rcell rcell-last" valign="middle" style="padding:12px 16px; font-size:14px; font-weight:bold; color:#a4262c; border-bottom:1px solid #edebe9; white-space:nowrap;"><span class="rlabel" style="display:none;">Осталось</span>{{daysToExpire}} Дн.</td>
                 </tr>

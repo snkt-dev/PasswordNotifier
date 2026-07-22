@@ -8,6 +8,7 @@ val executor = Executors.newSingleThreadScheduledExecutor()
 
 var _adDomain: String? = null
 var _adExGroup: String? = null
+var _adInGroup: String? = null
 var _adHost: String? = null
 var _adPass: String? = null
 var _adPort: Int? = null
@@ -30,6 +31,7 @@ fun main(args: Array<String>) {
     while (optind < args.size) {
         if (args[optind] == "--ad_domain") _adDomain = args[++optind]
         else if (args[optind] == "--ad_ex_group") _adExGroup = args[++optind]
+        else if (args[optind] == "--ad_in_group") _adInGroup = args[++optind]
         else if (args[optind] == "--ad_host") _adHost = args[++optind]
         else if (args[optind] == "--ad_pass") _adPass = args[++optind]
         else if (args[optind] == "--ad_port") _adPort = args[++optind].toInt()
@@ -53,7 +55,8 @@ fun main(args: Array<String>) {
         }
         optind++
     }
-//    scheduleTask(executor)
+
     notifyAllUsersWhosePasswordsAboutToExpire()
+    scheduleTask(executor)
     logger.info { "Password notifier ready to work!" }
 }
